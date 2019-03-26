@@ -21,11 +21,6 @@ func TestHelmXFromWorkingDir(t *testing.T) {
 	err := hx.FromYAML(hlemXData)
 	require.NoError(t, err)
 
-	//	err = hx.FromTOML([]byte(`
-	//project.name = "overwrite"
-	//`))
-	//	require.NoError(t, err)
-
 	fmt.Println(string(MustBytes(hx.ToYAML())))
 }
 
@@ -37,16 +32,22 @@ func TestTemplates(t *testing.T) {
 	err := hx.FromYAML(hlemXData)
 	require.NoError(t, err)
 
-	hx.AddTemplate("ingress", `
+	hx.AddTemplate(
+		"ingress",
+		`
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: ingress-{{ ( .Project.FullName ) }}
+  name: {{ ( .Project.FullName ) }}
   annotations:
     kubernetes.io/ingress.class: "nginx"
 spec:
 {{ spaces 2 | toYamlIndent ( toKubeIngressRules . )}}
-`)
+`,
+func(s *spec.Spec) bool {
+		return len(s.Service.Ingress) > 0
+	},
+	)
 
 	hx.AddTemplate("service", `
 apiVersion: v1
