@@ -20,6 +20,7 @@ var KubeFuncs = template.FuncMap{
 	"toKubeContainerPorts":   ToKubeContainerPorts,
 	"toKubeIngressRules":     ToKubeIngressRules,
 	"toKubeServicePorts":     ToKubeServicePorts,
+	"toKubeTolerations":      ToKubeTolerations,
 }
 
 func ToKubeEnv(envs spec.Envs) kubetypes.KubeEnv {
@@ -78,6 +79,7 @@ func kubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	ss.Command = c.Command
 	ss.Args = c.Args
 	ss.TTY = c.TTY
+	ss.Resources = c.Resources
 
 	if s.Envs != nil {
 		if c.Envs == nil {
@@ -211,4 +213,19 @@ func ToKubeIngressRules(s spec.Spec) kubetypes.KubeIngressRules {
 	}
 
 	return ss
+}
+
+func ToKubeTolerations(s spec.Spec) kubetypes.KubeTolerations {
+	kt := kubetypes.KubeTolerations{}
+
+	for key, value := range s.Tolerations {
+		toleration := kubetypes.KubeToleration{
+			Key:      key,
+			Value:    value,
+			Effect:   kubetypes.TolerationEffectNoExecute,
+			Operator: kubetypes.TolerationOperatorEqual,
+		}
+		kt.Tolerations = append(kt.Tolerations, toleration)
+	}
+	return kt
 }

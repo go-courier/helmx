@@ -2,6 +2,7 @@ package spec
 
 import (
 	"github.com/go-courier/helmx/constants"
+	"github.com/go-courier/helmx/kubetypes"
 	"net/url"
 	"os"
 	"strings"
@@ -13,12 +14,13 @@ var (
 
 type Container struct {
 	Image      `yaml:",inline"`
-	WorkingDir string        `json:"workingDir,omitempty" yaml:"workingDir,omitempty"`
-	Command    []string      `json:"command,omitempty" yaml:"command,omitempty"`
-	Args       []string      `json:"args,omitempty" yaml:"args,omitempty"`
-	Mounts     []VolumeMount `json:"mounts,omitempty" yaml:"mounts,omitempty"`
-	Envs       Envs          `json:"envs,omitempty" yaml:"envs,omitempty"`
-	TTY        bool          `json:"tty,omitempty" yaml:"tty,omitempty"`
+	WorkingDir string                  `json:"workingDir,omitempty" yaml:"workingDir,omitempty"`
+	Command    []string                `json:"command,omitempty" yaml:"command,omitempty"`
+	Args       []string                `json:"args,omitempty" yaml:"args,omitempty"`
+	Mounts     []VolumeMount           `json:"mounts,omitempty" yaml:"mounts,omitempty"`
+	Envs       Envs                    `json:"envs,omitempty" yaml:"envs,omitempty"`
+	TTY        bool                    `json:"tty,omitempty" yaml:"tty,omitempty"`
+	Resources  kubetypes.KubeResources `json:"resources,omitempty" yaml:"resources,omitempty"`
 }
 
 type Image struct {

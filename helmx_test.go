@@ -44,9 +44,9 @@ metadata:
 spec:
 {{ spaces 2 | toYamlIndent ( toKubeIngressRules . )}}
 `,
-func(s *spec.Spec) bool {
-		return len(s.Service.Ingress) > 0
-	},
+		func(s *spec.Spec) bool {
+			return len(s.Service.Ingress) > 0
+		},
 	)
 
 	hx.AddTemplate("service", `
@@ -80,6 +80,7 @@ spec:
       labels:
         srv: {{ ( .Project.FullName ) }}
     spec:
+{{ spaces 6 | toYamlIndent ( toKubeTolerations . ) }}
 {{ spaces 6 | toYamlIndent ( toKubeVolumes . ) }}
 {{ spaces 6 | toYamlIndent ( toKubeInitContainers . ) }}
       containers:
