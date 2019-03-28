@@ -15,11 +15,13 @@ type KubeImagePullSecrets struct {
 }
 
 type KubeContainer struct {
-	Name               string   `yaml:"name"`
-	Command            []string `yaml:"command,omitempty"`
-	Args               []string `yaml:"args,omitempty"`
-	WorkingDir         string   `yaml:"workingDir,omitempty"`
-	TTY                bool     `yaml:"tty,omitempty"`
+	Name       string    `yaml:"name"`
+	Command    []string  `yaml:"command,omitempty"`
+	Args       []string  `yaml:"args,omitempty"`
+	WorkingDir string    `yaml:"workingDir,omitempty"`
+	TTY        bool      `yaml:"tty,omitempty"`
+	Resources  Resources `yaml:"resources,omitempty"`
+
 	KubeImage          `yaml:",inline"`
 	KubeContainerPorts `yaml:",inline"`
 	KubeVolumeMounts   `yaml:",inline"`

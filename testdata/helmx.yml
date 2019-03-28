@@ -22,6 +22,17 @@ service:
         - /www
         - /usr/share/nginx/html
 
+envs:
+  env: "test"
+
+resources:
+  cpu: 10/20
+  memory: 20
+
+tolerations:
+  - env=test
+  - project=test
+
 volumes:
   data:
     emptyDir: {}
