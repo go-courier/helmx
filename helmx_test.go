@@ -40,9 +40,9 @@ func TestTemplates(t *testing.T) {
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-name: {{ ( .Project.FullName ) }}
-annotations:
-  kubernetes.io/ingress.class: "nginx"
+  name: {{ ( .Project.FullName ) }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
 spec:
 {{ spaces 2 | toYamlIndent ( toKubeIngressRules . )}}
 `,
@@ -55,13 +55,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
- name: {{ ( .Project.FullName ) }}
- annotations:
-   helmx/project: {{ toJson .Project  | quote }}
-   helmx/upstreams: {{ join .Upstreams ","}}
+  name: {{ ( .Project.FullName ) }}
+  annotations: 
+    helmx/project: {{ toJson .Project  | quote }}
+    helmx/upstreams: {{ join .Upstreams ","}}
 spec:
- selector:
-   srv: {{ ( .Project.FullName ) }}
+  selector:
+    srv: {{ ( .Project.FullName ) }}
 {{ spaces 2 | toYamlIndent ( toKubeServicePorts . )  }}
 `)
 
