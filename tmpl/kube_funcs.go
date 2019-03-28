@@ -1,11 +1,13 @@
 package tmpl
 
 import (
+	"fmt"
 	"github.com/go-courier/helmx/constants"
 	"github.com/go-courier/helmx/kubetypes"
 	"github.com/go-courier/helmx/spec"
 	"sort"
 	"strconv"
+	"strings"
 	"text/template"
 )
 
@@ -79,7 +81,15 @@ func kubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	ss.Command = c.Command
 	ss.Args = c.Args
 	ss.TTY = c.TTY
-	ss.Resources = c.Resources
+
+	cpuResource := strings.Split(s.Resources.Cpu, "/")
+	memoryResource := strings.Split(s.Resources.Memory, "/")
+
+	ss.Resources.Requests.Cpu = fmt.Sprintf("%sm", cpuResource[0])
+	ss.Resources.Limits.Cpu = fmt.Sprintf("%sm", cpuResource[1])
+
+	ss.Resources.Requests.Memory = fmt.Sprintf("%sMi", memoryResource[0])
+	ss.Resources.Limits.Memory = fmt.Sprintf("%sMi", memoryResource[1])
 
 	if s.Envs != nil {
 		if c.Envs == nil {
@@ -218,10 +228,12 @@ func ToKubeIngressRules(s spec.Spec) kubetypes.KubeIngressRules {
 func ToKubeTolerations(s spec.Spec) kubetypes.KubeTolerations {
 	kt := kubetypes.KubeTolerations{}
 
-	for key, value := range s.Tolerations {
+	for _, value := range s.Tolerations {
+
+		kv := strings.Split(value, "=")
 		toleration := kubetypes.KubeToleration{
-			Key:      key,
-			Value:    value,
+			Key:      kv[0],
+			Value:    kv[1],
 			Effect:   kubetypes.TolerationEffectNoExecute,
 			Operator: kubetypes.TolerationOperatorEqual,
 		}

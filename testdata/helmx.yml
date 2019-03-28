@@ -21,15 +21,17 @@ service:
       args:
         - /www
         - /usr/share/nginx/html
-  resources:
-    limits:
-      cpu: 100m
-      memory: 1024Mi
+
 envs:
   env: "test"
 
+resources:
+  cpu: 10/20
+  memory: 20
+
 tolerations:
-  env: "test"
+  - env=test
+  - project=test
 
 volumes:
   data:
