@@ -45,7 +45,7 @@ func (s RequestAndLimit) String() string {
 		v = strconv.FormatInt(int64(s.Request), 10)
 	}
 	if s.Limit != 0 {
-		v = "/" + strconv.FormatInt(int64(s.Limit), 10)
+		v += "/" + strconv.FormatInt(int64(s.Limit), 10)
 	}
 	return v
 }
