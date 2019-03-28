@@ -145,6 +145,11 @@ func toKubeVolume(name string, v spec.Volume) kubetypes.KubeVolume {
 
 func ToKubeImagePullSecrets(s spec.Spec) kubetypes.KubeImagePullSecrets {
 	secretNames := map[string]bool{}
+	name := (&spec.ImagePullSecret{}).SecretName()
+
+	if name != "" {
+		secretNames[name] = true
+	}
 
 	if s.Service.Image.ImagePullSecret != nil {
 		secretNames[s.Service.Image.ImagePullSecret.SecretName()] = true

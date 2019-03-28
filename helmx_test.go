@@ -56,7 +56,7 @@ metadata:
   name: {{ ( .Project.FullName ) }}
   annotations: 
     helmx/project: {{ toJson .Project  | quote }}
-    helmx/upstreams: {{ join .Upstreams ","}}
+    helmx/upstreams: {{ join .Upstreams "," | quote }}
 spec:
   selector:
     srv: {{ ( .Project.FullName ) }}
@@ -80,6 +80,7 @@ spec:
       labels:
         srv: {{ ( .Project.FullName ) }}
     spec:
+{{ spaces 6 | toYamlIndent ( toKubeImagePullSecrets . ) }}
 {{ spaces 6 | toYamlIndent ( toKubeTolerations . ) }}
 {{ spaces 6 | toYamlIndent ( toKubeVolumes . ) }}
 {{ spaces 6 | toYamlIndent ( toKubeInitContainers . ) }}
