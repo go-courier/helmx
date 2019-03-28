@@ -82,14 +82,20 @@ func kubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	ss.Args = c.Args
 	ss.TTY = c.TTY
 
-	cpuResource := strings.Split(s.Resources.Cpu, "/")
-	memoryResource := strings.Split(s.Resources.Memory, "/")
+	if s.Resources.Cpu.Request != 0 {
+		ss.Resources.Requests.Cpu = fmt.Sprintf("%dm", s.Resources.Cpu.Request)
+	}
 
-	ss.Resources.Requests.Cpu = fmt.Sprintf("%sm", cpuResource[0])
-	ss.Resources.Limits.Cpu = fmt.Sprintf("%sm", cpuResource[1])
+	if s.Resources.Cpu.Limit != 0 {
+		ss.Resources.Limits.Cpu = fmt.Sprintf("%dm", s.Resources.Cpu.Limit)
+	}
 
-	ss.Resources.Requests.Memory = fmt.Sprintf("%sMi", memoryResource[0])
-	ss.Resources.Limits.Memory = fmt.Sprintf("%sMi", memoryResource[1])
+	if s.Resources.Memory.Request != 0 {
+		ss.Resources.Requests.Memory = fmt.Sprintf("%dMi", s.Resources.Memory.Request)
+	}
+	if s.Resources.Memory.Limit != 0 {
+		ss.Resources.Limits.Memory = fmt.Sprintf("%dMi", s.Resources.Memory.Limit)
+	}
 
 	if s.Envs != nil {
 		if c.Envs == nil {
