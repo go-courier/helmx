@@ -9,7 +9,7 @@ const (
 )
 
 type KubeTolerations struct {
-	Tolerations []KubeToleration `yaml:"tolerations"`
+	Tolerations []KubeToleration `yaml:"tolerations,omitempty"`
 }
 
 type KubeToleration struct {
