@@ -75,7 +75,8 @@ func kubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	ss := kubetypes.KubeContainer{}
 
 	ss.Name = s.Project.FullName()
-	ss.KubeImage = ToKubeContainerImage(s)
+	ss.KubeImage.Image = c.Image.ImageTag(s.Project.DefaultImageTag())
+	ss.KubeImage.ImagePullPolicy = c.ImagePullPolicy
 
 	ss.WorkingDir = c.WorkingDir
 	ss.Command = c.Command
