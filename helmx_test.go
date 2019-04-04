@@ -60,7 +60,7 @@ metadata:
 spec:
   selector:
     srv: {{ ( .Project.FullName ) }}
-{{ spaces 2 | toYamlIndent ( toKubeServicePorts . )  }}
+{{ spaces 2 | toYamlIndent ( toKubeServiceSpec . )  }}
 `)
 
 	hx.AddTemplate("deployment", `

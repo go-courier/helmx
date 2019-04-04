@@ -77,7 +77,7 @@ func (tplMgr *TemplateMgr) ExecuteAll(writer io.Writer, s *spec.Spec) error {
 			return err
 		}
 		if ok {
-			count ++
+			count++
 		}
 	}
 	return nil

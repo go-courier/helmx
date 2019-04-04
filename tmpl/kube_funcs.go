@@ -2,13 +2,14 @@ package tmpl
 
 import (
 	"fmt"
-	"github.com/go-courier/helmx/constants"
-	"github.com/go-courier/helmx/kubetypes"
-	"github.com/go-courier/helmx/spec"
 	"sort"
 	"strconv"
 	"strings"
 	"text/template"
+
+	"github.com/go-courier/helmx/constants"
+	"github.com/go-courier/helmx/kubetypes"
+	"github.com/go-courier/helmx/spec"
 )
 
 var KubeFuncs = template.FuncMap{
@@ -21,7 +22,7 @@ var KubeFuncs = template.FuncMap{
 	"toKubeImagePullSecrets": ToKubeImagePullSecrets,
 	"toKubeContainerPorts":   ToKubeContainerPorts,
 	"toKubeIngressRules":     ToKubeIngressRules,
-	"toKubeServicePorts":     ToKubeServicePorts,
+	"toKubeServiceSpec":      ToKubeServiceSpec,
 	"toKubeTolerations":      ToKubeTolerations,
 }
 
@@ -195,12 +196,20 @@ func ToKubeContainerPorts(s spec.Spec) kubetypes.KubeContainerPorts {
 	return ss
 }
 
-func ToKubeServicePorts(s spec.Spec) kubetypes.KubeServicePorts {
-	ss := kubetypes.KubeServicePorts{}
+func ToKubeServiceSpec(s spec.Spec) kubetypes.KubeServiceSpec {
+	ss := kubetypes.KubeServiceSpec{
+		Type: kubetypes.ServiceTypeClusterIP,
+	}
+
 	for _, port := range s.Service.Ports {
 		p := kubetypes.KubeServicePort{
 			Port:       port.Port,
 			TargetPort: port.ContainerPort,
+		}
+
+		if port.IsNodePort {
+			ss.Type = kubetypes.ServiceTypeNodePort
+			p.NodePort = port.Port
 		}
 
 		if port.Protocol == "" {

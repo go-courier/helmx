@@ -1,6 +1,5 @@
 package kubetypes
 
-
 type KubeIngressRules struct {
 	Rules []IngressRule `yaml:"rules"`
 }
