@@ -2,6 +2,24 @@ package kubetypes
 
 import "github.com/go-courier/helmx/constants"
 
+type KubePodSpec struct {
+	KubeVolumes          `yaml:",inline"`
+	KubeInitContainers   `yaml:",inline"`
+	KubeContainers       `yaml:",inline"`
+	KubeImagePullSecrets `yaml:",inline"`
+	KubeTolerations      `yaml:",inline"`
+	PodOpts              `yaml:",inline"`
+}
+
+type PodOpts struct {
+	RestartPolicy                 string            `json:"restartPolicy,omitempty" yaml:"restartPolicy,omitempty"`
+	TerminationGracePeriodSeconds *int64            `json:"terminationGracePeriodSeconds,omitempty" yaml:"terminationGracePeriodSeconds,omitempty"`
+	ActiveDeadlineSeconds         *int64            `json:"activeDeadlineSeconds,omitempty" yaml:"activeDeadlineSeconds,omitempty"`
+	DNSPolicy                     string            `json:"dnsPolicy,omitempty" yaml:"dnsPolicy,omitempty"`
+	NodeSelector                  map[string]string `json:"nodeSelector,omitempty" yaml:"nodeSelector,omitempty"`
+	ServiceAccountName            string            `json:"serviceAccountName,omitempty" yaml:"serviceAccountName,omitempty"`
+}
+
 type KubeInitContainers struct {
 	InitContainers []KubeContainer `yaml:"initContainers,omitempty"`
 }
@@ -15,12 +33,12 @@ type KubeImagePullSecrets struct {
 }
 
 type KubeContainer struct {
-	Name       string    `yaml:"name"`
-	Command    []string  `yaml:"command,omitempty"`
-	Args       []string  `yaml:"args,omitempty"`
-	WorkingDir string    `yaml:"workingDir,omitempty"`
-	TTY        bool      `yaml:"tty,omitempty"`
-	Resources  Resources `yaml:"resources,omitempty"`
+	Name       string               `yaml:"name"`
+	Command    []string             `yaml:"command,omitempty"`
+	Args       []string             `yaml:"args,omitempty"`
+	WorkingDir string               `yaml:"workingDir,omitempty"`
+	TTY        bool                 `yaml:"tty,omitempty"`
+	Resources  ResourceRequirements `yaml:"resources,omitempty"`
 
 	KubeImage          `yaml:",inline"`
 	KubeContainerPorts `yaml:",inline"`

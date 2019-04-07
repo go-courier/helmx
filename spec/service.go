@@ -1,10 +1,17 @@
 package spec
 
-type Service struct {
-	Container `yaml:",inline"`
+import "github.com/go-courier/helmx/kubetypes"
 
-	Replicas int           `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	Initials []Container   `json:"initials,omitempty" yaml:"initials,omitempty"`
-	Ports    []Port        `json:"ports,omitempty" yaml:"ports,omitempty"`
-	Ingress  []IngressRule `json:"ingress,omitempty" yaml:"ingress,omitempty"`
+type Service struct {
+	Pod                      `yaml:",inline"`
+	kubetypes.DeploymentOpts `yaml:",inline"`
+
+	Ports     []Port        `json:"ports,omitempty" yaml:"ports,omitempty"`
+	Ingresses []IngressRule `json:"ingresses,omitempty" yaml:"ingresses,omitempty"`
+}
+
+type Pod struct {
+	Initials          []Container `json:"initials,omitempty" yaml:"initials,omitempty"`
+	Container         `yaml:",inline"`
+	kubetypes.PodOpts `yaml:",inline"`
 }

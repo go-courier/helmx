@@ -1,6 +1,6 @@
 package kubetypes
 
-type Resources struct {
+type ResourceRequirements struct {
 	Requests Resource `yaml:"requests,omitempty"`
 	Limits   Resource `yaml:"limits,omitempty"`
 }

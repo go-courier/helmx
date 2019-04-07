@@ -13,17 +13,106 @@ import (
 )
 
 var KubeFuncs = template.FuncMap{
-	"toKubeEnv":              ToKubeEnv,
-	"toKubeInitContainers":   ToKubeInitContainers,
-	"toKubeMainContainer":    ToKubeMainContainer,
-	"toKubeContainerImage":   ToKubeContainerImage,
-	"toKubeVolumeMounts":     ToKubeVolumeMounts,
-	"toKubeVolumes":          ToKubeVolumes,
-	"toKubeImagePullSecrets": ToKubeImagePullSecrets,
-	"toKubeContainerPorts":   ToKubeContainerPorts,
-	"toKubeIngressRules":     ToKubeIngressRules,
-	"toKubeServiceSpec":      ToKubeServiceSpec,
-	"toKubeTolerations":      ToKubeTolerations,
+	"toKubeIngressSpec":    ToKubeIngressSpec,
+	"toKubeServiceSpec":    ToKubeServiceSpec,
+	"toKubeDeploymentSpec": ToKubeDeploymentSpec,
+	"toKubeJobSpec":        ToKubeJobSpec,
+	"toKubeCronJobSpec":    ToKubeCronJobSpec,
+}
+
+func ToKubeServiceSpec(s spec.Spec) kubetypes.KubeServiceSpec {
+	ss := kubetypes.KubeServiceSpec{
+		Type: kubetypes.ServiceTypeClusterIP,
+	}
+
+	for _, port := range s.Service.Ports {
+		p := kubetypes.KubeServicePort{
+			Port:       port.Port,
+			TargetPort: port.ContainerPort,
+		}
+
+		if port.IsNodePort {
+			ss.Type = kubetypes.ServiceTypeNodePort
+			p.NodePort = port.Port
+		}
+
+		if port.Protocol == "" {
+			p.Protocol = constants.ProtocolTCP
+		} else {
+			p.Protocol = port.Protocol
+		}
+
+		ss.Ports = append(ss.Ports, p)
+	}
+	return ss
+}
+
+func ToKubeDeploymentSpec(s spec.Spec) kubetypes.KubeDeploymentSpec {
+	ds := kubetypes.KubeDeploymentSpec{}
+
+	ds.Template.Metadata.Labels = map[string]string{
+		"srv": s.Project.FullName(),
+	}
+
+	ds.DeploymentOpts = s.Service.DeploymentOpts
+	ds.Template.Spec = ToKubePodSpec(s, s.Service.Pod)
+
+	return ds
+}
+
+func ToKubeJobSpec(s spec.Spec, job spec.Job) kubetypes.KubeJobSpec {
+	js := kubetypes.KubeJobSpec{}
+	js.JobOpts = job.JobOpts
+	js.Template.Spec = ToKubePodSpec(s, job.Pod)
+	return js
+}
+
+func ToKubeCronJobSpec(s spec.Spec, job spec.Job) kubetypes.KubeCronJobSpec {
+	js := kubetypes.KubeCronJobSpec{}
+	if job.Cron != nil {
+		js.CronJobOpts = *job.Cron
+	}
+	js.Template.Spec = ToKubeJobSpec(s, job)
+	return js
+}
+
+func ToKubePodSpec(s spec.Spec, pod spec.Pod) kubetypes.KubePodSpec {
+	ps := kubetypes.KubePodSpec{}
+
+	ps.KubeVolumes = ToKubeVolumes(s)
+	ps.KubeTolerations = ToKubeTolerations(s)
+
+	ps.KubeInitContainers = ToKubeInitContainers(s, pod)
+	ps.KubeContainers = ToKubeContainers(s, pod)
+	ps.KubeImagePullSecrets = ToKubeImagePullSecrets(s, pod)
+	ps.PodOpts = pod.PodOpts
+
+	return ps
+}
+
+func ToKubeIngressSpec(s spec.Spec) kubetypes.KubeIngressSpec {
+	is := kubetypes.KubeIngressSpec{}
+
+	for _, r := range s.Service.Ingresses {
+		rule := kubetypes.IngressRule{
+			Host: r.Host,
+			HTTP: &kubetypes.HTTPIngressRuleValue{
+				Paths: []kubetypes.HTTPIngressPath{
+					{
+						Path: r.Path,
+						Backend: kubetypes.IngressBackend{
+							ServiceName: s.Project.FullName(),
+							ServicePort: r.Port,
+						},
+					},
+				},
+			},
+		}
+
+		is.Rules = append(is.Rules, rule)
+	}
+
+	return is
 }
 
 func ToKubeEnv(envs spec.Envs) kubetypes.KubeEnv {
@@ -47,11 +136,11 @@ func ToKubeEnv(envs spec.Envs) kubetypes.KubeEnv {
 	return e
 }
 
-func ToKubeInitContainers(s spec.Spec) kubetypes.KubeInitContainers {
+func ToKubeInitContainers(s spec.Spec, pod spec.Pod) kubetypes.KubeInitContainers {
 	ss := kubetypes.KubeInitContainers{}
 
-	for i, c := range s.Service.Initials {
-		container := kubeContainer(s, c)
+	for i, c := range pod.Initials {
+		container := ToKubeContainer(s, c)
 		container.Name = container.Name + "-init-" + strconv.FormatInt(int64(i), 10)
 
 		ss.InitContainers = append(ss.InitContainers, container)
@@ -59,24 +148,25 @@ func ToKubeInitContainers(s spec.Spec) kubetypes.KubeInitContainers {
 	return ss
 }
 
-func ToKubeMainContainer(s spec.Spec) kubetypes.KubeContainer {
-	ss := kubeContainer(s, s.Service.Container)
-	ss.KubeContainerPorts = ToKubeContainerPorts(s)
-	return ss
-}
+func ToKubeContainers(s spec.Spec, pod spec.Pod) kubetypes.KubeContainers {
+	kc := kubetypes.KubeContainers{}
 
-func ToKubeContainerImage(s spec.Spec) kubetypes.KubeImage {
-	return kubetypes.KubeImage{
-		Image:           s.Service.Image.ImageTag(s.Project.DefaultImageTag()),
-		ImagePullPolicy: s.Service.ImagePullPolicy,
+	c := ToKubeContainer(s, pod.Container)
+
+	// only service can be ports
+	if s.Service != nil {
+		c.KubeContainerPorts = toKubeContainerPorts(s, s.Service.Ports)
 	}
+	kc.Containers = []kubetypes.KubeContainer{c}
+
+	return kc
 }
 
-func kubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
+func ToKubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	ss := kubetypes.KubeContainer{}
 
 	ss.Name = s.Project.FullName()
-	ss.KubeImage.Image = c.Image.ImageTag(s.Project.DefaultImageTag())
+	ss.KubeImage.Image = c.ImageTag(s.Project.DefaultImageTag())
 	ss.KubeImage.ImagePullPolicy = c.ImagePullPolicy
 
 	ss.WorkingDir = c.WorkingDir
@@ -108,14 +198,14 @@ func kubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 		ss.KubeEnv = ToKubeEnv(c.Envs.Merge(s.Envs))
 	}
 
-	ss.KubeVolumeMounts = ToKubeVolumeMounts(s)
+	ss.KubeVolumeMounts = toKubeVolumeMounts(c)
 
 	return ss
 }
 
-func ToKubeVolumeMounts(s spec.Spec) kubetypes.KubeVolumeMounts {
+func toKubeVolumeMounts(container spec.Container) kubetypes.KubeVolumeMounts {
 	ss := kubetypes.KubeVolumeMounts{}
-	for _, volumeMount := range s.Service.Container.Mounts {
+	for _, volumeMount := range container.Mounts {
 		ss.VolumeMounts = append(ss.VolumeMounts, toKubeVolumeMount(volumeMount))
 	}
 	return ss
@@ -145,7 +235,7 @@ func toKubeVolume(name string, v spec.Volume) kubetypes.KubeVolume {
 	}
 }
 
-func ToKubeImagePullSecrets(s spec.Spec) kubetypes.KubeImagePullSecrets {
+func ToKubeImagePullSecrets(s spec.Spec, pod spec.Pod) kubetypes.KubeImagePullSecrets {
 	secretNames := map[string]bool{}
 	name := (&spec.ImagePullSecret{}).SecretName()
 
@@ -153,11 +243,11 @@ func ToKubeImagePullSecrets(s spec.Spec) kubetypes.KubeImagePullSecrets {
 		secretNames[name] = true
 	}
 
-	if s.Service.Image.ImagePullSecret != nil {
+	if pod.Image.ImagePullSecret != nil {
 		secretNames[s.Service.Image.ImagePullSecret.SecretName()] = true
 	}
 
-	for _, v := range s.Service.Initials {
+	for _, v := range pod.Initials {
 		if v.ImagePullSecret != nil {
 			secretNames[v.ImagePullSecret.SecretName()] = true
 		}
@@ -172,10 +262,10 @@ func ToKubeImagePullSecrets(s spec.Spec) kubetypes.KubeImagePullSecrets {
 	return ss
 }
 
-func ToKubeContainerPorts(s spec.Spec) kubetypes.KubeContainerPorts {
+func toKubeContainerPorts(s spec.Spec, ports []spec.Port) kubetypes.KubeContainerPorts {
 	ss := kubetypes.KubeContainerPorts{}
 
-	for _, port := range s.Service.Ports {
+	for _, port := range ports {
 		p := kubetypes.KubeContainerPort{
 			ContainerPort: port.ContainerPort,
 		}
@@ -196,58 +286,6 @@ func ToKubeContainerPorts(s spec.Spec) kubetypes.KubeContainerPorts {
 	return ss
 }
 
-func ToKubeServiceSpec(s spec.Spec) kubetypes.KubeServiceSpec {
-	ss := kubetypes.KubeServiceSpec{
-		Type: kubetypes.ServiceTypeClusterIP,
-	}
-
-	for _, port := range s.Service.Ports {
-		p := kubetypes.KubeServicePort{
-			Port:       port.Port,
-			TargetPort: port.ContainerPort,
-		}
-
-		if port.IsNodePort {
-			ss.Type = kubetypes.ServiceTypeNodePort
-			p.NodePort = port.Port
-		}
-
-		if port.Protocol == "" {
-			p.Protocol = constants.ProtocolTCP
-		} else {
-			p.Protocol = port.Protocol
-		}
-
-		ss.Ports = append(ss.Ports, p)
-	}
-	return ss
-}
-
-func ToKubeIngressRules(s spec.Spec) kubetypes.KubeIngressRules {
-	ss := kubetypes.KubeIngressRules{}
-
-	for _, r := range s.Service.Ingress {
-		rule := kubetypes.IngressRule{
-			Host: r.Host,
-			HTTP: &kubetypes.HTTPIngressRuleValue{
-				Paths: []kubetypes.HTTPIngressPath{
-					{
-						Path: r.Path,
-						Backend: kubetypes.IngressBackend{
-							ServiceName: s.Project.FullName(),
-							ServicePort: r.Port,
-						},
-					},
-				},
-			},
-		}
-
-		ss.Rules = append(ss.Rules, rule)
-	}
-
-	return ss
-}
-
 func ToKubeTolerations(s spec.Spec) kubetypes.KubeTolerations {
 	kt := kubetypes.KubeTolerations{}
 
@@ -260,6 +298,7 @@ func ToKubeTolerations(s spec.Spec) kubetypes.KubeTolerations {
 			Effect:   kubetypes.TolerationEffectNoExecute,
 			Operator: kubetypes.TolerationOperatorEqual,
 		}
+
 		kt.Tolerations = append(kt.Tolerations, toleration)
 	}
 	return kt
