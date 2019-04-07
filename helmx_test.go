@@ -105,7 +105,8 @@ kind: Service
 metadata:
   name: helmx--test
   annotations: 
-    helmx/project: "{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"}"
+    helmx/project: >-
+      {"name":"helmx","feature":"test","version":"0.0.0","group":"helmx","description":"helmx"}
     helmx/upstreams: ""
 spec:
   selector:
@@ -134,7 +135,8 @@ kind: Service
 metadata:
   name: helmx--test
   annotations: 
-    helmx/project: "{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"}"
+    helmx/project: >-
+      {"name":"helmx","feature":"test","version":"0.0.0","group":"helmx","description":"helmx"}
     helmx/upstreams: ""
 spec:
   selector:
@@ -270,7 +272,8 @@ kind: Service
 metadata:
   name: {{ ( .Project.FullName ) }}
   annotations: 
-    helmx/project: {{ toJson .Project  | quote }}
+    helmx/project: >-
+      {{ toJson .Project }}
     helmx/upstreams: {{ join .Upstreams "," | quote }}
 spec:
   selector:
