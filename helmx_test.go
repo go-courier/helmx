@@ -14,7 +14,7 @@ func init() {
 	os.Setenv(spec.EnvKeyImagePullSecret, "qcloud-registry://ccr.ccs.tencentyun.com/prefix-")
 }
 
-func Example() {
+func Test(t *testing.T) {
 	hx := NewHelmX()
 	hx.AddTemplate("ingress", ingress)
 	hx.AddTemplate("service", service)
@@ -36,6 +36,8 @@ service:
     - "data:/usr/share/nginx:ro"
   ports:
     - "80:80"
+  livenessProbe:
+    action: "http://:80"
   ingresses:
     - "http://helmx:80/helmx"
   initials:

@@ -174,6 +174,27 @@ func ToKubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	ss.Args = c.Args
 	ss.TTY = c.TTY
 
+	if c.LivenessProbe != nil {
+		ss.LivenessProbe = &kubetypes.Probe{
+			Handler:   c.LivenessProbe.Action.Handler,
+			ProbeOpts: c.LivenessProbe.ProbeOpts,
+		}
+	}
+
+	if c.ReadinessProbe != nil {
+		ss.ReadinessProbe = &kubetypes.Probe{
+			Handler:   c.ReadinessProbe.Action.Handler,
+			ProbeOpts: c.ReadinessProbe.ProbeOpts,
+		}
+	}
+
+	if c.Lifecycle != nil {
+		ss.Lifecycle = &kubetypes.Lifecycle{
+			PostStart: &c.Lifecycle.PostStart.Handler,
+			PreStop:   &c.Lifecycle.PreStop.Handler,
+		}
+	}
+
 	if s.Resources != nil {
 		if s.Resources.Cpu.Request != 0 {
 			ss.Resources.Requests.Cpu = fmt.Sprintf("%dm", s.Resources.Cpu.Request)

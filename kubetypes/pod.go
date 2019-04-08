@@ -33,12 +33,15 @@ type KubeImagePullSecrets struct {
 }
 
 type KubeContainer struct {
-	Name       string               `yaml:"name"`
-	Command    []string             `yaml:"command,omitempty"`
-	Args       []string             `yaml:"args,omitempty"`
-	WorkingDir string               `yaml:"workingDir,omitempty"`
-	TTY        bool                 `yaml:"tty,omitempty"`
-	Resources  ResourceRequirements `yaml:"resources,omitempty"`
+	Name           string               `yaml:"name"`
+	Command        []string             `yaml:"command,omitempty"`
+	Args           []string             `yaml:"args,omitempty"`
+	WorkingDir     string               `yaml:"workingDir,omitempty"`
+	TTY            bool                 `yaml:"tty,omitempty"`
+	Resources      ResourceRequirements `yaml:"resources,omitempty"`
+	Lifecycle      *Lifecycle           `yaml:"lifecycle,omitempty"`
+	ReadinessProbe *Probe               `yaml:"readinessProbe,omitempty"`
+	LivenessProbe  *Probe               `yaml:"livenessProbe,omitempty"`
 
 	KubeImage          `yaml:",inline"`
 	KubeContainerPorts `yaml:",inline"`
@@ -78,4 +81,50 @@ type KubeVolumeMount struct {
 	MountPath string `yaml:"mountPath"`
 	SubPath   string `yaml:"subPath,omitempty"`
 	ReadOnly  bool   `yaml:"readOnly,omitempty"`
+}
+
+type Lifecycle struct {
+	PostStart *Handler `yaml:"postStart,omitempty"`
+	PreStop   *Handler `yaml:"preStop,omitempty"`
+}
+
+type Probe struct {
+	Handler   `yaml:",inline"`
+	ProbeOpts `yaml:",inline"`
+}
+
+type ProbeOpts struct {
+	InitialDelaySeconds int32 `yaml:"initialDelaySeconds,omitempty" yaml:"initialDelaySeconds,omitempty"`
+	TimeoutSeconds      int32 `yaml:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty"`
+	PeriodSeconds       int32 `yaml:"periodSeconds,omitempty" yaml:"periodSeconds,omitempty"`
+	SuccessThreshold    int32 `yaml:"successThreshold,omitempty" yaml:"successThreshold,omitempty"`
+	FailureThreshold    int32 `yaml:"failureThreshold,omitempty" yaml:"failureThreshold,omitempty"`
+}
+
+type Handler struct {
+	Exec      *ExecAction      `yaml:"exec,omitempty"`
+	HTTPGet   *HTTPGetAction   `yaml:"httpGet,omitempty"`
+	TCPSocket *TCPSocketAction `yaml:"tcpSocket,omitempty"`
+}
+
+type ExecAction struct {
+	Command []string `yaml:"command,omitempty"`
+}
+
+type HTTPGetAction struct {
+	Port        uint16       `yaml:"port"`
+	Path        string       `yaml:"path,omitempty"`
+	Host        string       `yaml:"host,omitempty"`
+	Scheme      string       `yaml:"scheme,omitempty"`
+	HTTPHeaders []HTTPHeader `yaml:"httpHeaders,omitempty"`
+}
+
+type HTTPHeader struct {
+	Name  string `yaml:"name"`
+	Value string `yaml:"value"`
+}
+
+type TCPSocketAction struct {
+	Port uint16 `yaml:"port"`
+	Host string `yaml:"host,omitempty"`
 }

@@ -59,7 +59,7 @@ func (tplMgr *TemplateMgr) ExecuteAll(writer io.Writer, s *spec.Spec) error {
 	return nil
 }
 
-func (tplMgr TemplateMgr) execute(name string, writer io.Writer, s *spec.Spec) (error) {
+func (tplMgr TemplateMgr) execute(name string, writer io.Writer, s *spec.Spec) error {
 	if tmpl, ok := tplMgr.templates[name]; ok {
 		if err := tmpl.Execute(writer, s); err != nil {
 			return err

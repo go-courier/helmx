@@ -10,8 +10,8 @@ const (
 )
 
 type KubeServiceSpec struct {
-	Type         ServiceType       `yaml:"type,omitempty"`
-	Ports        []KubeServicePort `yaml:"ports,omitempty"`
+	Type  ServiceType       `yaml:"type,omitempty"`
+	Ports []KubeServicePort `yaml:"ports,omitempty"`
 }
 
 type KubeServicePort struct {
