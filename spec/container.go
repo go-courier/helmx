@@ -126,7 +126,7 @@ func ParseAction(s string) (*Action, error) {
 		a.HTTPGet.Port = uint16(port)
 		a.HTTPGet.Host = u.Hostname()
 		a.HTTPGet.Path = u.Path
-		a.HTTPGet.Scheme = u.Scheme
+		a.HTTPGet.Scheme = strings.ToUpper(u.Scheme)
 
 		return a, nil
 	}
@@ -149,7 +149,7 @@ func (a Action) String() string {
 
 	if a.HTTPGet != nil {
 		u := &url.URL{}
-		u.Scheme = a.HTTPGet.Scheme
+		u.Scheme = strings.ToLower(a.HTTPGet.Scheme)
 		u.Path = a.HTTPGet.Path
 		u.Host = a.HTTPGet.Host + ":" + strconv.FormatUint(uint64(a.HTTPGet.Port), 10)
 

@@ -11,7 +11,7 @@ func TestAction(t *testing.T) {
 		action, _ := ParseAction("http://:80/healthy")
 
 		require.Equal(t, uint16(80), action.HTTPGet.Port)
-		require.Equal(t, "http", action.HTTPGet.Scheme)
+		require.Equal(t, "HTTP", action.HTTPGet.Scheme)
 		require.Equal(t, "", action.HTTPGet.Host)
 		require.Equal(t, "/healthy", action.HTTPGet.Path)
 
