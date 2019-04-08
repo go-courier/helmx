@@ -94,11 +94,11 @@ type Probe struct {
 }
 
 type ProbeOpts struct {
-	InitialDelaySeconds int32 `yaml:"initialDelaySeconds,omitempty" yaml:"initialDelaySeconds,omitempty"`
-	TimeoutSeconds      int32 `yaml:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty"`
-	PeriodSeconds       int32 `yaml:"periodSeconds,omitempty" yaml:"periodSeconds,omitempty"`
-	SuccessThreshold    int32 `yaml:"successThreshold,omitempty" yaml:"successThreshold,omitempty"`
-	FailureThreshold    int32 `yaml:"failureThreshold,omitempty" yaml:"failureThreshold,omitempty"`
+	InitialDelaySeconds int32 `json:"initialDelaySeconds,omitempty" yaml:"initialDelaySeconds,omitempty"`
+	TimeoutSeconds      int32 `json:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty"`
+	PeriodSeconds       int32 `json:"periodSeconds,omitempty" yaml:"periodSeconds,omitempty"`
+	SuccessThreshold    int32 `json:"successThreshold,omitempty" yaml:"successThreshold,omitempty"`
+	FailureThreshold    int32 `json:"failureThreshold,omitempty" yaml:"failureThreshold,omitempty"`
 }
 
 type Handler struct {

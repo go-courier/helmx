@@ -29,8 +29,8 @@ type Container struct {
 }
 
 type Lifecycle struct {
-	PostStart Action `json:"postStart,omitempty" yaml:"postStart,omitempty"`
-	PreStop   Action `json:"preStop,omitempty" yaml:"preStop,omitempty"`
+	PostStart *Action `json:"postStart,omitempty" yaml:"postStart,omitempty"`
+	PreStop   *Action `json:"preStop,omitempty" yaml:"preStop,omitempty"`
 }
 
 type Probe struct {
@@ -135,7 +135,7 @@ func ParseAction(s string) (*Action, error) {
 		Command: []string{"sh", "-c", s},
 	}
 
-	return nil, nil
+	return a, nil
 }
 
 type Action struct {

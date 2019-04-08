@@ -38,6 +38,8 @@ service:
     - "80:80"
   livenessProbe:
     action: "http://:80"
+  lifecycle:
+    preStop: "nginx -s quit"
   ingresses:
     - "http://helmx:80/helmx"
   initials:

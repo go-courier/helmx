@@ -189,9 +189,12 @@ func ToKubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	}
 
 	if c.Lifecycle != nil {
-		ss.Lifecycle = &kubetypes.Lifecycle{
-			PostStart: &c.Lifecycle.PostStart.Handler,
-			PreStop:   &c.Lifecycle.PreStop.Handler,
+		ss.Lifecycle = &kubetypes.Lifecycle{}
+		if c.Lifecycle.PostStart != nil {
+			ss.Lifecycle.PostStart = &c.Lifecycle.PostStart.Handler
+		}
+		if c.Lifecycle.PreStop != nil {
+			ss.Lifecycle.PreStop = &c.Lifecycle.PreStop.Handler
 		}
 	}
 
