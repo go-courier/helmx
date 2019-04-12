@@ -15,6 +15,7 @@ type KubeServiceSpec struct {
 }
 
 type KubeServicePort struct {
+	Name       string             `yaml:"name,omitempty"`
 	NodePort   uint16             `yaml:"nodePort,omitempty"`
 	Port       uint16             `yaml:"port"`
 	TargetPort uint16             `yaml:"targetPort"`

@@ -33,7 +33,10 @@ func ToKubeServiceSpec(s spec.Spec) kubetypes.KubeServiceSpec {
 
 		if port.IsNodePort {
 			ss.Type = kubetypes.ServiceTypeNodePort
+			p.Name = fmt.Sprintf("node-port-%d", port.Port)
 			p.NodePort = port.Port
+		} else {
+			p.Name = fmt.Sprintf("port-%d", port.Port)
 		}
 
 		if port.Protocol == "" {
