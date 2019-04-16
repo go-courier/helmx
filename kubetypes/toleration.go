@@ -1,20 +1,13 @@
 package kubetypes
 
-type TolerationEffect string
-type TolerationOperator string
-
-const (
-	TolerationEffectNoExecute TolerationEffect   = "NoExecute"
-	TolerationOperatorEqual   TolerationOperator = "Equal"
-)
-
 type KubeTolerations struct {
 	Tolerations []KubeToleration `yaml:"tolerations,omitempty"`
 }
 
 type KubeToleration struct {
-	Key      string             `yaml:"key"`
-	Value    string             `yaml:"value"`
-	Effect   TolerationEffect   `yaml:"effect"`
-	Operator TolerationOperator `yaml:"operator"`
+	Key               string `yaml:"key"`
+	Value             string `yaml:"value,omitempty"`
+	Effect            string `yaml:"effect,omitempty"`
+	Operator          string `yaml:"operator,omitempty"`
+	TolerationSeconds *int64 `yaml:"tolerationSeconds,omitempty"`
 }

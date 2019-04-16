@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
-	"strings"
 	"text/template"
 
 	"github.com/go-courier/helmx/constants"
@@ -316,17 +315,24 @@ func toKubeContainerPorts(s spec.Spec, ports []spec.Port) kubetypes.KubeContaine
 func ToKubeTolerations(s spec.Spec) kubetypes.KubeTolerations {
 	kt := kubetypes.KubeTolerations{}
 
-	for _, value := range s.Tolerations {
-
-		kv := strings.Split(value, "=")
-		toleration := kubetypes.KubeToleration{
-			Key:      kv[0],
-			Value:    kv[1],
-			Effect:   kubetypes.TolerationEffectNoExecute,
-			Operator: kubetypes.TolerationOperatorEqual,
+	for _, toleration := range s.Tolerations {
+		t := kubetypes.KubeToleration{
+			Key:    toleration.Key,
+			Value:  toleration.Value,
+			Effect: toleration.Effect,
 		}
 
-		kt.Tolerations = append(kt.Tolerations, toleration)
+		if t.Value == "" {
+			t.Operator = "Exists"
+		} else {
+			t.Operator = "Equal"
+		}
+
+		if toleration.TolerationSeconds != nil {
+			t.TolerationSeconds = toleration.TolerationSeconds
+		}
+
+		kt.Tolerations = append(kt.Tolerations, t)
 	}
 	return kt
 }

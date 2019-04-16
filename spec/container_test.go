@@ -27,3 +27,17 @@ func TestAction(t *testing.T) {
 		require.Equal(t, "tcp://:80", action.String())
 	})
 }
+
+func TestToleration(t *testing.T) {
+	t.Run("parse & string http", func(t *testing.T) {
+		toleration, _ := ParseToleration("key=value:NoExecute,3600")
+
+		require.Equal(t, "key", toleration.Key)
+		require.Equal(t, "value", toleration.Value)
+		require.Equal(t, "NoExecute", toleration.Effect)
+		require.Equal(t, int64(3600), *toleration.TolerationSeconds)
+
+		require.Equal(t, "key=value:NoExecute,3600", toleration.String())
+	})
+
+}

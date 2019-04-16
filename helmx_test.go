@@ -71,7 +71,7 @@ resources:
 
 tolerations:
   - env=test
-  - project=test
+  - project
 
 volumes:
   data:
@@ -118,7 +118,8 @@ spec:
     srv: helmx--test
   type: ClusterIP
   ports:
-  - port: 80
+  - name: port-80
+    port: 80
     targetPort: 80
     protocol: TCP
 `,
@@ -148,7 +149,8 @@ spec:
     srv: helmx--test
   type: NodePort
   ports:
-  - nodePort: 80
+  - name: node-port-80
+    nodePort: 80
     port: 80
     targetPort: 80
     protocol: TCP
