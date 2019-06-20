@@ -27,6 +27,7 @@ func Test(t *testing.T) {
 		`
 namespace:
   name: test
+  nodeSelector: monitor=on
 
 project:
   name: helmx
@@ -362,6 +363,8 @@ spec:
 apiVersion: v1
 kind: Namespace
 metadata:
+  annotations:
+    scheduler.alpha.kubernetes.io/node-selector: {{ .NameSpace.NodeSelector }}
   name: {{ .NameSpace.Name }}
 {{ end }}
 `
