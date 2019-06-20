@@ -1,6 +1,8 @@
 package spec
 
 type Spec struct {
+	NameSpace *NameSpace `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+
 	Project *Project `json:"project,omitempty" yaml:"project,omitempty"`
 
 	Service *Service       `json:"service,omitempty" yaml:"service,omitempty"`

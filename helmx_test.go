@@ -21,9 +21,13 @@ func Test(t *testing.T) {
 	hx.AddTemplate("deployment", deployment)
 	hx.AddTemplate("job", job)
 	hx.AddTemplate("cronJob", cronJob)
+	hx.AddTemplate("namespace", namespace)
 
 	hx.FromYAML([]byte(
 		`
+namespace:
+  name: test
+
 project:
   name: helmx
   feature: test
@@ -349,6 +353,16 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
 spec:
 {{ spaces 2 | toYamlIndent ( toKubeIngressSpec . )}}
+{{ end }}
+`
+	namespace = `
+{{ if ( exists .NameSpace ) }}
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .NameSpace.Name }}
 {{ end }}
 `
 )
