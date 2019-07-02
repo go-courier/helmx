@@ -1,7 +1,6 @@
 package helmx
 
 import (
-	"fmt"
 	"github.com/go-courier/helmx/spec"
 	"github.com/go-courier/helmx/tmpl"
 	"gopkg.in/yaml.v2"
@@ -29,7 +28,6 @@ type HelmX struct {
 }
 
 func (hx *HelmX) FromYAML(data []byte) error {
-	fmt.Println(string(data))
 	return yaml.Unmarshal(data, &hx.Spec)
 }
 
