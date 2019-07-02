@@ -2,10 +2,11 @@ package spec
 
 import (
 	"fmt"
-	"github.com/go-courier/helmx/constants"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/go-courier/helmx/constants"
 )
 
 func ParsePort(s string) (*Port, error) {
@@ -16,6 +17,7 @@ func ParsePort(s string) (*Port, error) {
 	port := uint16(0)
 	targetPort := uint16(0)
 	protocol := ""
+	isNodePort := false
 
 	parts := strings.Split(s, "/")
 
@@ -23,6 +25,11 @@ func ParsePort(s string) (*Port, error) {
 
 	if len(parts) == 2 {
 		protocol = strings.ToLower(parts[1])
+	}
+
+	if s[0] == '!' {
+		isNodePort = true
+		s = s[1:]
 	}
 
 	ports := strings.Split(s, ":")
@@ -45,6 +52,7 @@ func ParsePort(s string) (*Port, error) {
 	}
 
 	return &Port{
+		IsNodePort:    isNodePort,
 		Port:          port,
 		ContainerPort: targetPort,
 		Protocol:      constants.Protocol(strings.ToUpper(protocol)),
@@ -53,6 +61,7 @@ func ParsePort(s string) (*Port, error) {
 
 type Port struct {
 	Port          uint16
+	IsNodePort    bool
 	ContainerPort uint16
 	Protocol      constants.Protocol
 }
@@ -69,6 +78,10 @@ func (s Port) String() string {
 
 	if s.Port != 0 {
 		v = strconv.FormatUint(uint64(s.Port), 10) + v
+	}
+
+	if s.IsNodePort {
+		v = "!" + v
 	}
 
 	return v

@@ -12,7 +12,7 @@ func TestVersion(t *testing.T) {
 
 		require.Equal(t, 1, v.Major)
 		require.Equal(t, 2, v.Minor)
-		require.Equal(t, 3, v.Patch, )
+		require.Equal(t, 3, v.Patch)
 
 		require.Equal(t, v.String(), "1.2.3")
 	})

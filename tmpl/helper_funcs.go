@@ -3,14 +3,16 @@ package tmpl
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/go-courier/reflectx"
-	"gopkg.in/yaml.v2"
 	"strconv"
 	"strings"
 	"text/template"
+
+	"github.com/go-courier/reflectx"
+	"gopkg.in/yaml.v2"
 )
 
 var HelperFuncs = template.FuncMap{
+	"exists":       exists,
 	"default":      valueDefault,
 	"spaces":       spaces,
 	"toJson":       toJson,
@@ -19,6 +21,10 @@ var HelperFuncs = template.FuncMap{
 	"join":         strings.Join,
 	"repeat":       strings.Repeat,
 	"trimSpace":    strings.TrimSpace,
+}
+
+func exists(v interface{}) bool {
+	return !reflectx.IsEmptyValue(v)
 }
 
 func toJson(v interface{}) string { // nolint

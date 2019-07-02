@@ -1,4 +1,4 @@
-package helmx
+package keypath
 
 import (
 	"github.com/go-courier/reflectx"

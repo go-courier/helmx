@@ -1,10 +1,15 @@
 package spec
 
 import (
-	"github.com/go-courier/helmx/constants"
+	"bytes"
+	"errors"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/go-courier/helmx/constants"
+	"github.com/go-courier/helmx/kubetypes"
 )
 
 var (
@@ -19,6 +24,20 @@ type Container struct {
 	Mounts     []VolumeMount `json:"mounts,omitempty" yaml:"mounts,omitempty"`
 	Envs       Envs          `json:"envs,omitempty" yaml:"envs,omitempty"`
 	TTY        bool          `json:"tty,omitempty" yaml:"tty,omitempty"`
+
+	ReadinessProbe *Probe     `json:"readinessProbe,omitempty" yaml:"readinessProbe,omitempty"`
+	LivenessProbe  *Probe     `json:"livenessProbe,omitempty" yaml:"livenessProbe,omitempty"`
+	Lifecycle      *Lifecycle `json:"lifecycle,omitempty" yaml:"lifecycle,omitempty"`
+}
+
+type Lifecycle struct {
+	PostStart *Action `json:"postStart,omitempty" yaml:"postStart,omitempty"`
+	PreStop   *Action `json:"preStop,omitempty" yaml:"preStop,omitempty"`
+}
+
+type Probe struct {
+	Action              Action `json:"action" yaml:"action"`
+	kubetypes.ProbeOpts `yaml:",inline"`
 }
 
 type Image struct {
@@ -78,4 +97,169 @@ func (s *ImagePullSecret) init() {
 			s.Prefix = strings.TrimLeft(u.Path, "/")
 		}
 	}
+}
+
+// http://:80
+// tcp://:80
+// exec
+func ParseAction(s string) (*Action, error) {
+	if s == "" {
+		return nil, nil
+	}
+
+	a := &Action{}
+
+	if strings.HasPrefix(s, "http") || strings.HasPrefix(s, "tcp") {
+		u, err := url.Parse(s)
+		if err != nil {
+			return nil, err
+		}
+
+		port, _ := strconv.ParseUint(u.Port(), 10, 64)
+
+		if u.Scheme == "tcp" {
+			a.TCPSocket = &kubetypes.TCPSocketAction{}
+			a.TCPSocket.Host = u.Hostname()
+			a.TCPSocket.Port = uint16(port)
+			return a, nil
+		}
+
+		a.HTTPGet = &kubetypes.HTTPGetAction{}
+		a.HTTPGet.Port = uint16(port)
+		a.HTTPGet.Host = u.Hostname()
+		a.HTTPGet.Path = u.Path
+		a.HTTPGet.Scheme = strings.ToUpper(u.Scheme)
+
+		return a, nil
+	}
+
+	a.Exec = &kubetypes.ExecAction{
+		Command: []string{"sh", "-c", s},
+	}
+
+	return a, nil
+}
+
+type Action struct {
+	kubetypes.Handler
+}
+
+func (a Action) String() string {
+	if a.Exec != nil {
+		return a.Exec.Command[2]
+	}
+
+	if a.HTTPGet != nil {
+		u := &url.URL{}
+		u.Scheme = strings.ToLower(a.HTTPGet.Scheme)
+		u.Path = a.HTTPGet.Path
+		u.Host = a.HTTPGet.Host + ":" + strconv.FormatUint(uint64(a.HTTPGet.Port), 10)
+
+		if u.Scheme != "" {
+			u.Scheme = "http"
+		}
+		return u.String()
+	}
+
+	if a.TCPSocket != nil {
+		u := &url.URL{}
+		u.Scheme = "tcp"
+		u.Host = a.TCPSocket.Host + ":" + strconv.FormatUint(uint64(a.TCPSocket.Port), 10)
+
+		return u.String()
+	}
+
+	return ""
+}
+
+func (a Action) MarshalText() ([]byte, error) {
+	return []byte(a.String()), nil
+}
+
+func (a *Action) UnmarshalText(data []byte) error {
+	action, err := ParseAction(string(data))
+	if err != nil {
+		return err
+	}
+	if action != nil {
+		*a = *action
+	}
+	return nil
+}
+
+// key=value:NoExecute,3600
+// key:NoExecute
+func ParseToleration(s string) (*Toleration, error) {
+	if s == "" {
+		return nil, nil
+	}
+
+	t := &Toleration{}
+
+	parts := strings.Split(s, ":")
+
+	kv := strings.Split(parts[0], "=")
+
+	t.Key = kv[0]
+
+	if len(kv) > 1 {
+		t.Value = kv[1]
+	}
+
+	if len(parts) > 1 {
+		effectAndDuration := strings.Split(parts[1], ",")
+		t.Effect = effectAndDuration[0]
+
+		if len(effectAndDuration) > 1 {
+			d, err := strconv.ParseInt(effectAndDuration[1], 10, 64)
+			if err != nil {
+				return nil, errors.New("invalid toleration seconds")
+			}
+			t.TolerationSeconds = &d
+		}
+	}
+
+	return t, nil
+}
+
+type Toleration struct {
+	Key               string
+	Value             string
+	Effect            string
+	TolerationSeconds *int64
+}
+
+func (t *Toleration) UnmarshalText(text []byte) error {
+	to, err := ParseToleration(string(text))
+	if err != nil {
+		return err
+	}
+	*t = *to
+	return nil
+}
+
+func (t Toleration) MarshalText() (text []byte, err error) {
+	return []byte(t.String()), nil
+}
+
+func (t Toleration) String() string {
+	buf := bytes.NewBuffer(nil)
+	buf.WriteString(t.Key)
+
+	if t.Value != "" {
+		buf.WriteRune('=')
+		buf.WriteString(t.Value)
+	}
+
+	if t.Effect != "" {
+		buf.WriteRune(':')
+		buf.WriteString(t.Effect)
+	}
+
+	if t.TolerationSeconds != nil {
+		buf.WriteRune(',')
+		buf.WriteString(strconv.FormatInt(int64(*t.TolerationSeconds), 10))
+	}
+
+	return buf.String()
 }

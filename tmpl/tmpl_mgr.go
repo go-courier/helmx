@@ -1,9 +1,10 @@
 package tmpl
 
 import (
-	"github.com/go-courier/helmx/spec"
 	"io"
 	"text/template"
+
+	"github.com/go-courier/helmx/spec"
 )
 
 func MergeFuncMap(funcMaps ...template.FuncMap) template.FuncMap {
@@ -20,90 +21,49 @@ func MergeFuncMap(funcMaps ...template.FuncMap) template.FuncMap {
 
 func NewTemplateMgr() *TemplateMgr {
 	return &TemplateMgr{
-		templates: map[string]*Tmpl{},
+		templates: map[string]*template.Template{},
 		funcMap:   MergeFuncMap(KubeFuncs, HelperFuncs),
 	}
 }
 
-type Tmpl struct {
-	Validates []func(s *spec.Spec) bool
-	*template.Template
-}
-
 type TemplateMgr struct {
 	funcMap   template.FuncMap
-	templates map[string]*Tmpl
+	templates map[string]*template.Template
 }
 
 func (tplMgr *TemplateMgr) AddFunc(name string, fn interface{}) {
 	tplMgr.funcMap[name] = fn
 }
 
-func (tplMgr *TemplateMgr) AddTemplate(name string, text string, validates ...func(s *spec.Spec) bool) {
-	if err := tplMgr.addTemplate(name, text, validates...); err != nil {
+func (tplMgr *TemplateMgr) AddTemplate(name string, text string) {
+	if err := tplMgr.addTemplate(name, text); err != nil {
 		panic(err)
 	}
 }
 
-func (tplMgr *TemplateMgr) addTemplate(name string, text string, validates ...func(s *spec.Spec) bool) error {
+func (tplMgr *TemplateMgr) addTemplate(name string, text string) error {
 	tmpl, err := template.New(name).Funcs(tplMgr.funcMap).Parse(text)
 	if err != nil {
 		return err
 	}
-	tplMgr.templates[name] = &Tmpl{
-		Validates: validates,
-		Template:  tmpl,
-	}
+	tplMgr.templates[name] = tmpl
 	return nil
 }
 
 func (tplMgr *TemplateMgr) ExecuteAll(writer io.Writer, s *spec.Spec) error {
-	count := 0
-
 	for name := range tplMgr.templates {
-		if count != 0 {
-			_, err := writer.Write([]byte(`
-
----
-
-`))
-			if err != nil {
-				return err
-			}
-		}
-
-		ok, err := tplMgr.execute(name, writer, s)
-		if err != nil {
+		if err := tplMgr.execute(name, writer, s); err != nil {
 			return err
-		}
-		if ok {
-			count ++
 		}
 	}
 	return nil
 }
 
-func (tplMgr TemplateMgr) execute(name string, writer io.Writer, s *spec.Spec) (bool, error) {
+func (tplMgr TemplateMgr) execute(name string, writer io.Writer, s *spec.Spec) error {
 	if tmpl, ok := tplMgr.templates[name]; ok {
-		valid := true
-		if len(tmpl.Validates) > 0 {
-			for _, validate := range tmpl.Validates {
-				v := validate(s)
-				if !v {
-					valid = v
-					break
-				}
-			}
+		if err := tmpl.Execute(writer, s); err != nil {
+			return err
 		}
-
-		if !valid {
-			return false, nil
-		}
-		err := tmpl.Execute(writer, s)
-		if err != nil {
-			return false, err
-		}
-		return true, nil
 	}
-	return false, nil
+	return nil
 }
