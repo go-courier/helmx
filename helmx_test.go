@@ -2,7 +2,6 @@ package helmx
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -34,14 +33,8 @@ project:
 
 service:
   hostAliases:
-    - ip: 127.0.0.1
-      hostnames:
-        - test1.com
-        - test2.com
-    - ip: 127.0.0.2
-      hostnames:
-        - test3.com
-        - test4.com
+    - "127.0.0.1:test1.com,test2.com"
+    - "127.0.0.2:test2.com,test3.com"
   mounts:
     - "data:/usr/share/nginx:ro"
   ports:
@@ -171,15 +164,9 @@ spec:
 	t.Run("deployment", func(t *testing.T) {
 		check(t, baseProject+`
 service:
-  hostAliases:
-    - ip: 127.0.0.1
-      hostnames:
-        - test1.com
-        - test2.com
-    - ip: 127.0.0.2
-      hostnames:
-        - test3.com
-        - test4.com
+  hosts:
+    - "127.0.0.1:test1.com,test2.com"
+    - "127.0.0.2:test3.com,test4.com"
   ports:
     - "80:80"
 `,
@@ -193,7 +180,7 @@ kind: Deployment
 metadata:
   name: helmx--test
   annotations: 
-    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"hostAliases\":[{\"ip\":\"127.0.0.1\",\"hostNames\":[\"test1.com\",\"test2.com\"]},{\"ip\":\"127.0.0.2\",\"hostNames\":[\"test3.com\",\"test4.com\"]}],\"ports\":[\"80\"]}}"
+    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"hosts\":[{\"ip\":\"127.0.0.1\",\"hostNames\":[\"test1.com\",\"test2.com\"]},{\"ip\":\"127.0.0.2\",\"hostNames\":[\"test3.com\",\"test4.com\"]}],\"ports\":[\"80\"]}}"
 spec:
   selector:
     matchLabels:
@@ -392,7 +379,7 @@ func check(t *testing.T, helmx string, tmpl string, expect string) {
 	err = hx.ExecuteAll(buf, &hx.Spec)
 	require.NoError(t, err)
 
-	fmt.Println(buf.String())
+	//fmt.Println(buf.String())
 
 	require.Equal(t, strings.TrimSpace(expect), strings.TrimSpace(buf.String()))
 }

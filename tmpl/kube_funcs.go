@@ -88,7 +88,7 @@ func ToKubePodSpec(s spec.Spec, pod spec.Pod) kubetypes.KubePodSpec {
 	ps.KubeContainers = ToKubeContainers(s, pod)
 	ps.KubeImagePullSecrets = ToKubeImagePullSecrets(s, pod)
 	ps.PodOpts = pod.PodOpts
-	ps.HostAliases = ToKubeHostAliases(s)
+	ps.HostAliases = ToKubeHosts(s)
 
 	return ps
 }
@@ -338,12 +338,12 @@ func ToKubeTolerations(s spec.Spec) kubetypes.KubeTolerations {
 	return kt
 }
 
-func ToKubeHostAliases(s spec.Spec) []kubetypes.KubeHostAlias {
+func ToKubeHosts(s spec.Spec) []kubetypes.KubeHosts {
 
-	var ss []kubetypes.KubeHostAlias
+	var ss []kubetypes.KubeHosts
 	if s.Service != nil {
-		for _, h := range s.Service.HostAliases {
-			ss = append(ss, kubetypes.KubeHostAlias{
+		for _, h := range s.Service.Hosts {
+			ss = append(ss, kubetypes.KubeHosts{
 				Ip:        h.Ip,
 				HostNames: h.HostNames,
 			})

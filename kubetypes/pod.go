@@ -1,6 +1,9 @@
 package kubetypes
 
-import "github.com/go-courier/helmx/constants"
+import (
+	"github.com/go-courier/helmx/constants"
+	"strings"
+)
 
 type KubePodSpec struct {
 	KubeVolumes          `yaml:",inline"`
@@ -9,7 +12,7 @@ type KubePodSpec struct {
 	KubeImagePullSecrets `yaml:",inline"`
 	KubeTolerations      `yaml:",inline"`
 	PodOpts              `yaml:",inline"`
-	HostAliases          []KubeHostAlias `yaml:"hostAliases,omitempty" json:"hostAliases,omitempty"`
+	HostAliases          []KubeHosts `yaml:"hostAliases,omitempty" json:"hostAliases,omitempty"`
 }
 
 type PodOpts struct {
@@ -130,7 +133,41 @@ type TCPSocketAction struct {
 	Host string `yaml:"host,omitempty"`
 }
 
-type KubeHostAlias struct {
+type KubeHosts struct {
 	Ip        string   `yaml:"ip" json:"ip"`
 	HostNames []string `yaml:"hostnames" json:"hostNames"`
+}
+
+// 127.0.0.1:test1.com,test2.com
+func ParseHosts(s string) (*KubeHosts, error) {
+	if s == "" {
+		return nil, nil
+	}
+
+	t := &KubeHosts{}
+
+	parts := strings.Split(s, ":")
+
+	if len(parts) < 2 {
+		return nil, nil
+	}
+	t.Ip = parts[0]
+	kv := strings.Split(parts[1], ",")
+
+	if len(kv) > 0 {
+		for _, name := range kv {
+			t.HostNames = append(t.HostNames, name)
+		}
+	}
+
+	return t, nil
+}
+
+func (t *KubeHosts) UnmarshalText(text []byte) error {
+	to, err := ParseHosts(string(text))
+	if err != nil {
+		return err
+	}
+	*t = *to
+	return nil
 }
