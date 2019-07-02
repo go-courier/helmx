@@ -9,6 +9,7 @@ type KubePodSpec struct {
 	KubeImagePullSecrets `yaml:",inline"`
 	KubeTolerations      `yaml:",inline"`
 	PodOpts              `yaml:",inline"`
+	HostAliases          []KubeHostAlias `yaml:"hostAliases,omitempty" json:"hostAliases,omitempty"`
 }
 
 type PodOpts struct {
@@ -127,4 +128,9 @@ type HTTPHeader struct {
 type TCPSocketAction struct {
 	Port uint16 `yaml:"port"`
 	Host string `yaml:"host,omitempty"`
+}
+
+type KubeHostAlias struct {
+	Ip        string   `yaml:"ip" json:"ip"`
+	HostNames []string `yaml:"hostnames" json:"hostNames"`
 }
