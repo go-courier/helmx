@@ -20,15 +20,9 @@ project:
   description: helmx
 
 service:
-  hostAliases:
-    - ip: 127.0.0.1
-      hostnames:
-        - test1.com
-        - test2.com
-    - ip: 127.0.0.2
-      hostnames:
-        - test3.com
-        - test4.com
+  hosts:
+    - "127.0.0.1:test1.com,test2.com"
+    - "127.0.0.2:test3.com,test4.com"
   mounts:
     - "data:/usr/share/nginx:ro"
   ports:
