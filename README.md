@@ -20,10 +20,18 @@ project:
   description: helmx
 
 service:
+  hosts:
+    - "127.0.0.1:test1.com,test2.com"
+    - "127.0.0.2:test3.com,test4.com"
   mounts:
     - "data:/usr/share/nginx:ro"
   ports:
     - "80:80"
+    - "!80:80"
+  livenessProbe:
+    action: "http://:80"
+  lifecycle:
+    preStop: "nginx -s quit"
   ingresses:
     - "http://helmx:80/helmx"
   initials:
@@ -54,7 +62,7 @@ resources:
 
 tolerations:
   - env=test
-  - project=test
+  - project
 
 volumes:
   data:
