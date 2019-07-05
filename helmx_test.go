@@ -39,7 +39,7 @@ service:
     - "data:/usr/share/nginx:ro"
   ports:
     - "80:80"
-    - "!80:80"
+    - "!20000:80"
   livenessProbe:
     action: "http://:80"
   lifecycle:
