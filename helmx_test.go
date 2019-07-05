@@ -36,7 +36,7 @@ service:
     - "data:/usr/share/nginx:ro"
   ports:
     - "80:80"
-    - "!80:80"
+    - "!24000:80"
   livenessProbe:
     action: "http://:80"
   lifecycle:
@@ -130,7 +130,8 @@ spec:
 		check(t, baseProject+`
 service:
   ports:
-    - "!80:80"
+    - "!24000:80"
+    - "!80"
 `,
 			service,
 			`
@@ -149,8 +150,12 @@ spec:
     srv: helmx--test
   type: NodePort
   ports:
+  - name: node-port-24000
+    nodePort: 24000
+    port: 80
+    targetPort: 80
+    protocol: TCP
   - name: node-port-80
-    nodePort: 80
     port: 80
     targetPort: 80
     protocol: TCP
