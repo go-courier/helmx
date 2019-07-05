@@ -263,3 +263,62 @@ func (t Toleration) String() string {
 
 	return buf.String()
 }
+
+type Hosts struct {
+	Ip        string   `yaml:"ip" json:"ip"`
+	HostNames []string `yaml:"hostnames" json:"hostNames"`
+}
+
+// 127.0.0.1:test1.com,test2.com
+func ParseHosts(s string) (*Hosts, error) {
+	if s == "" {
+		return nil, nil
+	}
+
+	t := &Hosts{}
+
+	parts := strings.Split(s, ":")
+
+	if len(parts) < 2 {
+		return nil, nil
+	}
+	t.Ip = parts[0]
+	kv := strings.Split(parts[1], ",")
+
+	if len(kv) > 0 {
+		for _, name := range kv {
+			t.HostNames = append(t.HostNames, name)
+		}
+	}
+
+	return t, nil
+}
+
+func (t *Hosts) UnmarshalText(text []byte) error {
+	to, err := ParseHosts(string(text))
+	if err != nil {
+		return err
+	}
+	*t = *to
+	return nil
+}
+
+func (t Hosts) MarshalText() (text []byte, err error) {
+	return []byte(t.String()), nil
+}
+
+func (t Hosts) String() string {
+	buf := bytes.NewBuffer(nil)
+	buf.WriteString(t.Ip)
+	buf.WriteString(":")
+
+	if len(t.HostNames) != 0 {
+		for index, host := range t.HostNames {
+			buf.WriteString(host)
+			if index != len(t.HostNames)-1 {
+				buf.WriteRune(',')
+			}
+		}
+	}
+	return buf.String()
+}

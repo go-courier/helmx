@@ -14,5 +14,5 @@ type Pod struct {
 	Initials          []Container `json:"initials,omitempty" yaml:"initials,omitempty"`
 	Container         `yaml:",inline"`
 	kubetypes.PodOpts `yaml:",inline"`
-	Hosts             []kubetypes.KubeHosts `yaml:"hosts,omitempty" json:"hosts,omitempty"`
+	Hosts             []Hosts `yaml:"hosts,omitempty" json:"hosts,omitempty"`
 }
