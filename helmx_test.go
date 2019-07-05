@@ -130,8 +130,10 @@ spec:
 		check(t, baseProject+`
 service:
   ports:
-    - "!24000:80"
+    - "!20000:80"
     - "!80"
+    - "!25000:25000"
+    - "!40000:80"
 `,
 			service,
 			`
@@ -150,12 +152,22 @@ spec:
     srv: helmx--test
   type: NodePort
   ports:
-  - name: node-port-24000
-    nodePort: 24000
+  - name: node-port-20000
+    nodePort: 20000
     port: 80
     targetPort: 80
     protocol: TCP
   - name: node-port-80
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: node-port-25000
+    nodePort: 25000
+    port: 25000
+    targetPort: 25000
+    protocol: TCP
+  - name: node-port-40000
+    nodePort: 40000
     port: 80
     targetPort: 80
     protocol: TCP
