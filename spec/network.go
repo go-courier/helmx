@@ -42,6 +42,13 @@ func ParsePort(s string) (*Port, error) {
 	port = uint16(p)
 
 	if len(ports) == 2 {
+
+		if isNodePort {
+			if port < 20000 || p > 40000 {
+				return nil, fmt.Errorf("Invalid value: %d: provided port is not in the valid range. The range of valid ports is 20000-40000", port)
+			}
+		}
+
 		p, err := strconv.ParseUint(ports[1], 10, 16)
 		if err != nil {
 			panic(fmt.Errorf("invalid target port %v", ports[1]))
