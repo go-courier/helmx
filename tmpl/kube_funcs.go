@@ -26,14 +26,16 @@ func ToKubeServiceSpec(s spec.Spec) kubetypes.KubeServiceSpec {
 
 	for _, port := range s.Service.Ports {
 		p := kubetypes.KubeServicePort{
-			Port:       port.Port,
+			Port:       port.ContainerPort,
 			TargetPort: port.ContainerPort,
 		}
 
 		if port.IsNodePort {
 			ss.Type = kubetypes.ServiceTypeNodePort
 			p.Name = fmt.Sprintf("node-port-%d", port.Port)
-			p.NodePort = port.Port
+			if port.Port >= 20000 && port.Port <= 40000 {
+				p.NodePort = port.Port
+			}
 		} else {
 			p.Name = fmt.Sprintf("port-%d", port.Port)
 		}
@@ -88,6 +90,7 @@ func ToKubePodSpec(s spec.Spec, pod spec.Pod) kubetypes.KubePodSpec {
 	ps.KubeContainers = ToKubeContainers(s, pod)
 	ps.KubeImagePullSecrets = ToKubeImagePullSecrets(s, pod)
 	ps.PodOpts = pod.PodOpts
+	ps.HostAliases = ToKubeHosts(s)
 
 	return ps
 }
@@ -335,4 +338,18 @@ func ToKubeTolerations(s spec.Spec) kubetypes.KubeTolerations {
 		kt.Tolerations = append(kt.Tolerations, t)
 	}
 	return kt
+}
+
+func ToKubeHosts(s spec.Spec) []kubetypes.KubeHosts {
+
+	var ss []kubetypes.KubeHosts
+	if s.Service != nil {
+		for _, h := range s.Service.Hosts {
+			ss = append(ss, kubetypes.KubeHosts{
+				Ip:        h.Ip,
+				HostNames: h.HostNames,
+			})
+		}
+	}
+	return ss
 }

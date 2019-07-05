@@ -102,4 +102,16 @@ func TestPort(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "80:8080/tcp", v.Port.String())
 	})
+
+	t.Run("node port range in 20000-40000", func(t *testing.T) {
+		_, ltErr := ParsePort("!19999:80")
+		_, noLtErr := ParsePort("!20000:80")
+		_, gtErr := ParsePort("!40001:80")
+		_, noGtErr := ParsePort("!40000:80")
+
+		require.Error(t, ltErr)
+		require.NoError(t, noLtErr)
+		require.Error(t, gtErr)
+		require.NoError(t, noGtErr)
+	})
 }
