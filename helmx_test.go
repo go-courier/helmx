@@ -137,6 +137,7 @@ service:
     - "!80"
     - "!25000:25000"
     - "!40000:80"
+    - "80:8080"
 `,
 			service,
 			`
@@ -157,7 +158,7 @@ spec:
   ports:
   - name: node-port-20000
     nodePort: 20000
-    port: 80
+    port: 20000
     targetPort: 80
     protocol: TCP
   - name: node-port-80
@@ -171,8 +172,12 @@ spec:
     protocol: TCP
   - name: node-port-40000
     nodePort: 40000
-    port: 80
+    port: 40000
     targetPort: 80
+    protocol: TCP
+  - name: port-80
+    port: 80
+    targetPort: 8080
     protocol: TCP
 `,
 		)

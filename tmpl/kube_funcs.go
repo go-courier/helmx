@@ -26,7 +26,7 @@ func ToKubeServiceSpec(s spec.Spec) kubetypes.KubeServiceSpec {
 
 	for _, port := range s.Service.Ports {
 		p := kubetypes.KubeServicePort{
-			Port:       port.ContainerPort,
+			Port:       port.Port,
 			TargetPort: port.ContainerPort,
 		}
 
