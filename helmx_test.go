@@ -39,7 +39,7 @@ service:
     - "data:/usr/share/nginx:ro"
   ports:
     - "80:80"
-    - "!24000:80"
+    - "!20000:80"
   livenessProbe:
     action: "http://:80"
   lifecycle:
@@ -186,6 +186,7 @@ service:
     - "127.0.0.2:test3.com,test4.com"
   ports:
     - "80:80"
+
 `,
 			deployment,
 			`
@@ -197,7 +198,7 @@ kind: Deployment
 metadata:
   name: helmx--test
   annotations: 
-    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"hosts\":[{\"ip\":\"127.0.0.1\",\"hostNames\":[\"test1.com\",\"test2.com\"]},{\"ip\":\"127.0.0.2\",\"hostNames\":[\"test3.com\",\"test4.com\"]}],\"ports\":[\"80\"]}}"
+    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]}}"
 spec:
   selector:
     matchLabels:
