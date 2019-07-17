@@ -1,6 +1,8 @@
 package kubetypes
 
-import "github.com/go-courier/helmx/constants"
+import (
+	"github.com/go-courier/helmx/constants"
+)
 
 type KubePodSpec struct {
 	KubeVolumes          `yaml:",inline"`
@@ -9,6 +11,7 @@ type KubePodSpec struct {
 	KubeImagePullSecrets `yaml:",inline"`
 	KubeTolerations      `yaml:",inline"`
 	PodOpts              `yaml:",inline"`
+	HostAliases          []KubeHosts `yaml:"hostAliases,omitempty" json:"hostAliases,omitempty"`
 }
 
 type PodOpts struct {
@@ -127,4 +130,9 @@ type HTTPHeader struct {
 type TCPSocketAction struct {
 	Port uint16 `yaml:"port"`
 	Host string `yaml:"host,omitempty"`
+}
+
+type KubeHosts struct {
+	Ip        string   `yaml:"ip" json:"ip"`
+	HostNames []string `yaml:"hostnames" json:"hostNames"`
 }

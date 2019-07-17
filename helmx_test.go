@@ -37,11 +37,14 @@ project:
   description: helmx
 
 service:
+  hostAliases:
+    - "127.0.0.1:test1.com,test2.com"
+    - "127.0.0.2:test2.com,test3.com"
   mounts:
     - "data:/usr/share/nginx:ro"
   ports:
     - "80:80"
-    - "!80:80"
+    - "!20000:80"
   livenessProbe:
     action: "http://:80"
   lifecycle:
@@ -135,7 +138,11 @@ spec:
 		check(t, baseProject+`
 service:
   ports:
-    - "!80:80"
+    - "!20000:80"
+    - "!80"
+    - "!25000:25000"
+    - "!40000:80"
+    - "80:8080"
 `,
 			service,
 			`
@@ -154,10 +161,28 @@ spec:
     srv: helmx--test
   type: NodePort
   ports:
+  - name: node-port-20000
+    nodePort: 20000
+    port: 20000
+    targetPort: 80
+    protocol: TCP
   - name: node-port-80
-    nodePort: 80
     port: 80
     targetPort: 80
+    protocol: TCP
+  - name: node-port-25000
+    nodePort: 25000
+    port: 25000
+    targetPort: 25000
+    protocol: TCP
+  - name: node-port-40000
+    nodePort: 40000
+    port: 40000
+    targetPort: 80
+    protocol: TCP
+  - name: port-80
+    port: 80
+    targetPort: 8080
     protocol: TCP
 `,
 		)
@@ -166,8 +191,12 @@ spec:
 	t.Run("deployment", func(t *testing.T) {
 		check(t, baseProject+`
 service:
+  hosts:
+    - "127.0.0.1:test1.com,test2.com"
+    - "127.0.0.2:test3.com,test4.com"
   ports:
     - "80:80"
+
 `,
 			deployment,
 			`
@@ -179,7 +208,7 @@ kind: Deployment
 metadata:
   name: helmx--test
   annotations: 
-    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"ports\":[\"80\"]}}"
+    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]}}"
 spec:
   selector:
     matchLabels:
@@ -197,6 +226,15 @@ spec:
           protocol: TCP
       imagePullSecrets:
       - name: qcloud-registry
+      hostAliases:
+      - ip: 127.0.0.1
+        hostnames:
+        - test1.com
+        - test2.com
+      - ip: 127.0.0.2
+        hostnames:
+        - test3.com
+        - test4.com
 `,
 		)
 	})
