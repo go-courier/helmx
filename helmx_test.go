@@ -49,6 +49,7 @@ service:
     action: "http://:80"
   lifecycle:
     preStop: "nginx -s quit"
+  ingressClass: "nginx"
   ingresses:
     - "http://helmx:80/helmx"
   initials:
@@ -389,7 +390,7 @@ kind: Ingress
 metadata:
   name: {{ ( .Project.FullName ) }}
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: {{ .Service.IngressClass }}
 spec:
 {{ spaces 2 | toYamlIndent ( toKubeIngressSpec . )}}
 {{ end }}
