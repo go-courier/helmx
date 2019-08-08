@@ -63,13 +63,12 @@ func TestPort(t *testing.T) {
 	})
 
 	t.Run("parse & string without node port", func(t *testing.T) {
-		sp, _ := ParsePort("!80:8080")
-
+		sp, _ := ParsePort("!20000:8080")
 		require.Equal(t, true, sp.IsNodePort)
-		require.Equal(t, uint16(80), sp.Port)
+		require.Equal(t, uint16(20000), sp.Port)
 		require.Equal(t, uint16(8080), sp.ContainerPort)
 
-		require.Equal(t, "!80:8080", sp.String())
+		require.Equal(t, "!20000:8080", sp.String())
 	})
 
 	t.Run("parse & string without protocol", func(t *testing.T) {

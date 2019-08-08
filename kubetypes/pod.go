@@ -19,8 +19,15 @@ type PodOpts struct {
 	TerminationGracePeriodSeconds *int64            `json:"terminationGracePeriodSeconds,omitempty" yaml:"terminationGracePeriodSeconds,omitempty"`
 	ActiveDeadlineSeconds         *int64            `json:"activeDeadlineSeconds,omitempty" yaml:"activeDeadlineSeconds,omitempty"`
 	DNSPolicy                     string            `json:"dnsPolicy,omitempty" yaml:"dnsPolicy,omitempty"`
+	DNSConfig                     *DNSConfig        `json:"dnsConfig,omitempty" yaml:"dnsConfig,omitempty"`
 	NodeSelector                  map[string]string `json:"nodeSelector,omitempty" yaml:"nodeSelector,omitempty"`
 	ServiceAccountName            string            `json:"serviceAccountName,omitempty" yaml:"serviceAccountName,omitempty"`
+}
+
+type DNSConfig struct {
+	Nameservers []string     `json:"nameservers,omitempty" yaml:"nameservers,omitempty"`
+	Searches    []string     `json:"searches,omitempty" yaml:"searches,omitempty"`
+	Options     []KubeOption `json:"options,omitempty" yaml:"options,omitempty"`
 }
 
 type KubeInitContainers struct {
