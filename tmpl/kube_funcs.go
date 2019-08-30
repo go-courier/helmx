@@ -218,6 +218,14 @@ func ToKubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 		if s.Resources.Memory.Limit != 0 {
 			ss.Resources.Limits.Memory = fmt.Sprintf("%dMi", s.Resources.Memory.Limit)
 		}
+
+		if s.Resources.Gpu.Limit != 0 {
+			ss.Resources.Limits.Gpu = fmt.Sprintf("%d", s.Resources.Gpu.Limit)
+		}
+
+		if s.Resources.Gpu.Request != 0 {
+			ss.Resources.Requests.Gpu = fmt.Sprintf("%d", s.Resources.Gpu.Request)
+		}
 	}
 
 	if s.Envs != nil {

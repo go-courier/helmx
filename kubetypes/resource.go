@@ -8,4 +8,5 @@ type ResourceRequirements struct {
 type Resource struct {
 	Cpu    string `yaml:"cpu,omitempty"`
 	Memory string `yaml:"memory,omitempty"`
+	Gpu    string `yaml:"nvidia.com/gpu,omitempty"`
 }

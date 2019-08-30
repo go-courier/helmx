@@ -9,6 +9,7 @@ import (
 type Resource struct {
 	Cpu    RequestAndLimit `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 	Memory RequestAndLimit `json:"memory,omitempty" yaml:"memory,omitempty"`
+	Gpu    RequestAndLimit `json:"gpu,omitempty" yaml:"gpu,omitempty"`
 }
 
 func ParseRequestAndLimit(s string) (*RequestAndLimit, error) {
