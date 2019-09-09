@@ -16,11 +16,11 @@ func init() {
 
 func Test(t *testing.T) {
 	hx := NewHelmX()
-	//hx.AddTemplate("ingress", ingress)
+	hx.AddTemplate("ingress", ingress)
 	hx.AddTemplate("service", service)
 	hx.AddTemplate("deployment", deployment)
-	//hx.AddTemplate("job", job)
-	//hx.AddTemplate("cronJob", cronJob)
+	hx.AddTemplate("job", job)
+	hx.AddTemplate("cronJob", cronJob)
 
 	hx.FromYAML([]byte(
 		`
@@ -71,6 +71,7 @@ envs:
 resources:
   cpu: 10/20
   memory: 0/20
+  ngpu: 0/20
 
 tolerations:
   - env=test
