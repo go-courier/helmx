@@ -9,7 +9,7 @@ type Spec struct {
 	Volumes     Volumes      `json:"volumes,omitempty" yaml:"volumes,omitempty"`
 	Envs        Envs         `json:"envs,omitempty" yaml:"envs,omitempty"`
 	Tolerations []Toleration `json:"tolerations,omitempty" yaml:"tolerations,omitempty"`
-	Resources   Resources   `json:"resources,omitempty" yaml:"resources,omitempty"`
+	Resources   Resources    `json:"resources,omitempty" yaml:"resources,omitempty"`
 	// just host or service name list
 	Upstreams []string `json:"upstreams,omitempty" yaml:"upstreams,omitempty"`
 }
