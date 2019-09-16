@@ -206,7 +206,7 @@ func ToKubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	if s.Resources != nil {
 		resources := &ss.Resources
 
-		for resourceType, r := range *s.Resources {
+		for resourceType, r := range s.Resources {
 			resources.Add(resourceType, r.ResourceString(), r.LimitString())
 		}
 	}
