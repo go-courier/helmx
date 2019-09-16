@@ -8,7 +8,7 @@ import (
 
 type Resources map[string]*RequestAndLimit
 
-var reRequestAndLimit = regexp.MustCompile(`([0-9\.]+)?(/([0-9\.]+))?([A-Za-z]+)?`)
+var reRequestAndLimit = regexp.MustCompile(`^([+\-]?[0-9.]+)?(\/([+\-]?[0-9.]+))?([eEinumkKMGTP]*[-+]?[0-9]*)$`)
 
 func ParseRequestAndLimit(s string) (*RequestAndLimit, error) {
 	if s == "" || !reRequestAndLimit.MatchString(s) {
@@ -61,7 +61,7 @@ func (s RequestAndLimit) String() string {
 	return v
 }
 
-func (s RequestAndLimit) ResourceString() string {
+func (s RequestAndLimit) RequestString() string {
 	v := ""
 	if s.Request != 0 {
 		v = strconv.FormatInt(int64(s.Request), 10)
