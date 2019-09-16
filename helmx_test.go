@@ -70,7 +70,8 @@ envs:
 
 resources:
   cpu: 10/20
-  memory: 20
+  memory: 0/20
+  ngpu: 0/20
 
 tolerations:
   - env=test
