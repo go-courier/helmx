@@ -1,11 +1,12 @@
 package keypath
 
 import (
-	"github.com/go-courier/reflectx"
-	"github.com/go-courier/reflectx/typesutil"
 	"go/ast"
 	"reflect"
 	"strings"
+
+	"github.com/go-courier/reflectx"
+	"github.com/go-courier/reflectx/typesutil"
 )
 
 func NewKeyPathDecoder(values map[string]string) *KeyPathDecoder {

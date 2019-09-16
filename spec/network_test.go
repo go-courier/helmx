@@ -1,10 +1,11 @@
 package spec
 
 import (
+	"testing"
+
 	"github.com/go-courier/helmx/constants"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
-	"testing"
 )
 
 func TestIngressRule(t *testing.T) {

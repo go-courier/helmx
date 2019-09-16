@@ -1,8 +1,9 @@
 package spec
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRequestAndLimit(t *testing.T) {
@@ -13,6 +14,16 @@ func TestRequestAndLimit(t *testing.T) {
 		require.Equal(t, 500, r.Limit)
 
 		require.Equal(t, "10/500", r.String())
+	})
+
+	t.Run("parse & string with unit", func(t *testing.T) {
+		r, _ := ParseRequestAndLimit("10/500m")
+
+		require.Equal(t, 10, r.Request)
+		require.Equal(t, 500, r.Limit)
+		require.Equal(t, "m", r.Unit)
+
+		require.Equal(t, "10/500m", r.String())
 	})
 
 	t.Run("parse & string simple", func(t *testing.T) {

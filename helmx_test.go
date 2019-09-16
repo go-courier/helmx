@@ -69,9 +69,9 @@ envs:
   env: "test"
 
 resources:
-  cpu: 10/20
-  memory: 0/20
-  ngpu: 0/20
+  cpu: 10/20m
+  memory: 0/20Mi
+  nvidia.com/gpu: 0/20
 
 tolerations:
   - env=test

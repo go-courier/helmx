@@ -140,6 +140,7 @@ func ParseAction(s string) (*Action, error) {
 	return a, nil
 }
 
+// openapi:strfmt action
 type Action struct {
 	kubetypes.Handler
 }
@@ -222,6 +223,7 @@ func ParseToleration(s string) (*Toleration, error) {
 	return t, nil
 }
 
+// openapi:strfmt toleration
 type Toleration struct {
 	Key               string
 	Value             string
@@ -264,6 +266,7 @@ func (t Toleration) String() string {
 	return buf.String()
 }
 
+// openapi:strfmt hosts
 type Hosts struct {
 	Ip        string   `yaml:"ip" json:"ip"`
 	HostNames []string `yaml:"hostnames" json:"hostNames"`

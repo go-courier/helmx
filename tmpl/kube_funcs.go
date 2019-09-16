@@ -204,27 +204,10 @@ func ToKubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	}
 
 	if s.Resources != nil {
-		if s.Resources.Cpu.Request != 0 {
-			ss.Resources.Requests.Cpu = fmt.Sprintf("%dm", s.Resources.Cpu.Request)
-		}
+		resources := &ss.Resources
 
-		if s.Resources.Cpu.Limit != 0 {
-			ss.Resources.Limits.Cpu = fmt.Sprintf("%dm", s.Resources.Cpu.Limit)
-		}
-
-		if s.Resources.Memory.Request != 0 {
-			ss.Resources.Requests.Memory = fmt.Sprintf("%dMi", s.Resources.Memory.Request)
-		}
-		if s.Resources.Memory.Limit != 0 {
-			ss.Resources.Limits.Memory = fmt.Sprintf("%dMi", s.Resources.Memory.Limit)
-		}
-
-		if s.Resources.NvidiaGpu.Limit != 0 {
-			ss.Resources.Limits.NvidiaGpu = fmt.Sprintf("%d", s.Resources.NvidiaGpu.Limit)
-		}
-
-		if s.Resources.NvidiaGpu.Request != 0 {
-			ss.Resources.Requests.NvidiaGpu = fmt.Sprintf("%d", s.Resources.NvidiaGpu.Request)
+		for resourceType, r := range *s.Resources {
+			resources.Add(resourceType, r.ResourceString(), r.LimitString())
 		}
 	}
 

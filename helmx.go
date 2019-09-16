@@ -1,12 +1,13 @@
 package helmx
 
 import (
-	"github.com/go-courier/helmx/spec"
-	"github.com/go-courier/helmx/tmpl"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/go-courier/helmx/spec"
+	"github.com/go-courier/helmx/tmpl"
+	"gopkg.in/yaml.v2"
 )
 
 func MustBytes(data []byte, err error) []byte {

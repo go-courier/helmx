@@ -1,6 +1,8 @@
 package kubetypes
 
-import "github.com/go-courier/helmx/constants"
+import (
+	"github.com/go-courier/helmx/constants"
+)
 
 type ServiceType string
 

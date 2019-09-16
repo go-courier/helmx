@@ -66,6 +66,7 @@ func ParsePort(s string) (*Port, error) {
 	}, nil
 }
 
+// openapi:strfmt port
 type Port struct {
 	Port          uint16
 	IsNodePort    bool
@@ -138,6 +139,7 @@ func ParseIngressRule(s string) (*IngressRule, error) {
 	return r, nil
 }
 
+// openapi:strfmt ingress-rule
 type IngressRule struct {
 	Scheme string
 	Host   string

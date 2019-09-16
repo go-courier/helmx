@@ -1,6 +1,8 @@
 package spec
 
-import "github.com/go-courier/helmx/kubetypes"
+import (
+	"github.com/go-courier/helmx/kubetypes"
+)
 
 type Service struct {
 	Pod                      `yaml:",inline"`

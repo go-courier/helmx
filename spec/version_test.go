@@ -1,9 +1,10 @@
 package spec
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
-	"testing"
 )
 
 func TestVersion(t *testing.T) {

@@ -47,6 +47,7 @@ func ParseVersion(s string) (*Version, error) {
 	return v, nil
 }
 
+// openapi:strfmt version
 type Version struct {
 	Suffix string
 	Prefix string

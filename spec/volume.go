@@ -3,8 +3,9 @@ package spec
 import (
 	"bytes"
 	"errors"
-	"github.com/go-courier/helmx/kubetypes"
 	"strings"
+
+	"github.com/go-courier/helmx/kubetypes"
 )
 
 var (
@@ -50,6 +51,7 @@ func ParseVolumeMount(s string) (*VolumeMount, error) {
 	return vm, nil
 }
 
+// openapi:strfmt volume-mount
 type VolumeMount struct {
 	Name      string
 	MountPath string
