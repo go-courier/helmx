@@ -3,6 +3,7 @@ package spec
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"net/url"
 	"os"
 	"strconv"
@@ -42,9 +43,10 @@ type Probe struct {
 
 type Image struct {
 	// default as project.group/project.name:version
-	Tag             string               `json:"image,omitempty" yaml:"image,omitempty"`
-	ImagePullPolicy constants.PullPolicy `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
+	Tag string `json:"image,omitempty" yaml:"image,omitempty"`
+	// <schema_name>://<host>/[prefix-]
 	ImagePullSecret *ImagePullSecret     `json:"imagePullSecret,omitempty" yaml:"imagePullSecret,omitempty"`
+	ImagePullPolicy constants.PullPolicy `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 }
 
 func (i Image) ImageTag(defaultTag string) string {
@@ -52,51 +54,85 @@ func (i Image) ImageTag(defaultTag string) string {
 		i.Tag = defaultTag
 	}
 
-	if len(i.Tag) > 0 && i.Tag[0] == '~' {
-		if i.ImagePullSecret == nil {
-			i.ImagePullSecret = &ImagePullSecret{}
-			i.ImagePullSecret.init()
-		}
-
-		i.Tag = i.Tag[1:]
-	}
-
-	if i.ImagePullSecret != nil {
-		return i.ImagePullSecret.PrefixTag(i.Tag)
-	}
-
-	return i.Tag
+	return i.ResolveImagePullSecret().PrefixTag(i.Tag)
 }
 
+func (i Image) ResolveImagePullSecret() *ImagePullSecret {
+	imagePullSecret := i.ImagePullSecret
+
+	if imagePullSecret == nil {
+		v := os.Getenv(EnvKeyImagePullSecret)
+		if v != "" {
+			imagePullSecret, _ = ParseImagePullSecret(v)
+		} else {
+			imagePullSecret = &ImagePullSecret{}
+		}
+	}
+
+	return imagePullSecret
+}
+
+func ParseImagePullSecret(imagePullSecret string) (*ImagePullSecret, error) {
+	u, err := url.Parse(imagePullSecret)
+	if err != nil {
+		return nil, fmt.Errorf("invalid image pull secret")
+	}
+
+	ips := &ImagePullSecret{}
+
+	ips.Host = u.Host
+	ips.Name = u.Scheme
+	ips.Prefix = strings.TrimLeft(u.Path, "/")
+
+	return ips, nil
+}
+
+// openapi:strfmt image-pull-secret
 type ImagePullSecret struct {
-	Name   string `json:"name" yaml:"name"`
-	Host   string `json:"host" yaml:"host"`
-	Prefix string `json:"prefix,omitempty" yaml:"prefix,omitempty"`
+	Name   string
+	Host   string
+	Prefix string
 }
 
 func (s ImagePullSecret) SecretName() string {
-	s.init()
 	return s.Name
 }
 
 func (s ImagePullSecret) PrefixTag(tag string) string {
-	s.init()
-	return s.Host + "/" + s.Prefix + tag
+	if len(tag) > 0 && tag[0] == '~' {
+		tag = tag[1:]
+
+		v := ""
+		if s.Host != "" {
+			v += s.Host + "/"
+		}
+		return v + s.Prefix + tag
+	}
+
+	return tag
 }
 
-func (s *ImagePullSecret) init() {
-	if s.Host == "" {
-		imagePullSecret := os.Getenv(EnvKeyImagePullSecret)
-		if imagePullSecret != "" {
-			u, err := url.Parse(imagePullSecret)
-			if err != nil {
-				panic(err)
-			}
-			s.Host = u.Host
-			s.Name = u.Scheme
-			s.Prefix = strings.TrimLeft(u.Path, "/")
-		}
+func (s ImagePullSecret) String() string {
+	v := &url.URL{}
+	v.Scheme = s.Name
+	v.Host = s.Host
+	v.Path = "/" + s.Prefix
+	return v.String()
+}
+
+func (s ImagePullSecret) MarshalText() ([]byte, error) {
+	return []byte(s.String()), nil
+}
+
+func (s *ImagePullSecret) UnmarshalText(data []byte) error {
+	imagePullSecret, err := ParseImagePullSecret(string(data))
+	if err != nil {
+		return err
 	}
+
+	*s = *imagePullSecret
+
+	return nil
 }
 
 // http://:80

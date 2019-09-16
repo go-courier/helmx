@@ -257,25 +257,19 @@ func toKubeVolume(name string, v spec.Volume) kubetypes.KubeVolume {
 
 func ToKubeImagePullSecrets(s spec.Spec, pod spec.Pod) kubetypes.KubeImagePullSecrets {
 	secretNames := map[string]bool{}
-	name := (&spec.ImagePullSecret{}).SecretName()
 
-	if name != "" {
-		secretNames[name] = true
-	}
-
-	if pod.Image.ImagePullSecret != nil {
-		secretNames[s.Service.Image.ImagePullSecret.SecretName()] = true
-	}
+	secretNames[pod.Image.ResolveImagePullSecret().SecretName()] = true
 
 	for _, v := range pod.Initials {
-		if v.ImagePullSecret != nil {
-			secretNames[v.ImagePullSecret.SecretName()] = true
-		}
+		secretNames[v.Image.ResolveImagePullSecret().SecretName()] = true
 	}
 
 	ss := kubetypes.KubeImagePullSecrets{}
 
 	for name := range secretNames {
+		if name == "" {
+			continue
+		}
 		ss.ImagePullSecrets = append(ss.ImagePullSecrets, kubetypes.KubeLocalObjectReference{Name: name})
 	}
 
