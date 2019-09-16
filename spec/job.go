@@ -7,5 +7,5 @@ import (
 type Job struct {
 	Pod               `yaml:",inline"`
 	kubetypes.JobOpts `yaml:",inline"`
-	Cron              *kubetypes.CronJobOpts `yaml:"cron,omitempty"`
+	Cron              *kubetypes.CronJobOpts `json:"cron,omitempty" yaml:"cron,omitempty"`
 }
