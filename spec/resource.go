@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-type Resources map[string]RequestAndLimit
+type Resources map[string]*RequestAndLimit
 
 var reRequestAndLimit = regexp.MustCompile(`([0-9\.]+)?(/([0-9\.]+))?([A-Za-z]+)?`)
 
