@@ -12,4 +12,6 @@ type Spec struct {
 	Resources   Resources    `json:"resources,omitempty" yaml:"resources,omitempty"`
 	// just host or service name list
 	Upstreams []string `json:"upstreams,omitempty" yaml:"upstreams,omitempty"`
+	// labels
+	Labels map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
 }
