@@ -58,6 +58,12 @@ func ToKubeDeploymentSpec(s spec.Spec) kubetypes.KubeDeploymentSpec {
 		"srv": s.Project.FullName(),
 	}
 
+	if s.Labels != nil {
+		for k, v := range s.Labels {
+			ds.Template.Metadata.Labels[k] = v
+		}
+	}
+
 	ds.DeploymentOpts = s.Service.DeploymentOpts
 	ds.Template.Spec = ToKubePodSpec(s, s.Service.Pod)
 

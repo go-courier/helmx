@@ -84,6 +84,10 @@ volumes:
 upstreams:
   - redis
   - mysql
+
+labels:
+   testKey1: testValue1 
+   testKey2: testValue2
 `))
 
 	hx.ExecuteAll(os.Stdout, &hx.Spec)
