@@ -8,11 +8,6 @@ type ConfigMapVolumeSource struct {
 	KubeLocalObjectReference `yaml:",inline"`
 }
 
-type EmptyDirVolumeSource struct {
-	//SizeLimit string `json:"sizeLimit" yaml:"sizeLimit"`
-	//Medium    string `json:"medium" yaml:"medium"`
-}
-
 type PersistentVolumeClaimVolumeSource struct {
 	ClaimName string `toml:"claimName" json:"claimName" yaml:"claimName"`
 	ReadOnly  bool   `toml:"readOnly" json:"readOnly"  yaml:"readOnly"`
