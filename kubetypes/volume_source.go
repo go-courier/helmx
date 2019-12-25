@@ -9,6 +9,8 @@ type ConfigMapVolumeSource struct {
 }
 
 type EmptyDirVolumeSource struct {
+	Medium    string `json:"medium,omitempty" yaml:"medium,omitempty"`
+	SizeLimit string `json:"sizeLimit,omitempty" yaml:"sizeLimit,omitempty"`
 }
 
 type PersistentVolumeClaimVolumeSource struct {
