@@ -16,11 +16,11 @@ func init() {
 
 func Test(t *testing.T) {
 	hx := NewHelmX()
-	hx.AddTemplate("ingress", ingress)
-	hx.AddTemplate("service", service)
+	//hx.AddTemplate("ingress", ingress)
+	//hx.AddTemplate("service", service)
 	hx.AddTemplate("deployment", deployment)
-	hx.AddTemplate("job", job)
-	hx.AddTemplate("cronJob", cronJob)
+	//hx.AddTemplate("job", job)
+	//hx.AddTemplate("cronJob", cronJob)
 
 	hx.FromYAML([]byte(
 		`
@@ -79,7 +79,7 @@ tolerations:
 
 volumes:
   data:
-    emptyMediumDir: {}
+    emptyDir: {}
 
 upstreams:
   - redis
