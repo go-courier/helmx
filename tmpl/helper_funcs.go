@@ -3,7 +3,6 @@ package tmpl
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 	"text/template"
@@ -41,8 +40,6 @@ func toYamlIndent(v interface{}, ident string) string {
 	if err != nil {
 		return ""
 	}
-	a := string(data)
-	fmt.Println(a)
 	if bytes.HasPrefix(data, []byte{'{', '}'}) || bytes.HasPrefix(data, []byte{'[', ']'}) {
 		return ""
 	}
