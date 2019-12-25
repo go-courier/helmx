@@ -240,6 +240,18 @@ func toKubeVolumeMounts(container spec.Container) kubetypes.KubeVolumeMounts {
 func ToKubeVolumes(s spec.Spec) kubetypes.KubeVolumes {
 	ss := kubetypes.KubeVolumes{}
 	for name, v := range s.Volumes {
+		if len(v.EmptyMediumDir) == 0 {
+			v.EmptyDir = struct{}{}
+		} else {
+			v.EmptyDir = struct {
+				SizeLimit string `json:"sizeLimit" yaml:"sizeLimit"`
+				Medium    string `json:"medium" yaml:"medium"`
+			}{
+				SizeLimit: v.EmptyMediumDir["sizeLimit"],
+				Medium:    v.EmptyMediumDir["medium"],
+			}
+			v.EmptyMediumDir = map[string]string{}
+		}
 		ss.Volumes = append(ss.Volumes, toKubeVolume(name, v))
 	}
 	return ss

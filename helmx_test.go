@@ -79,7 +79,7 @@ tolerations:
 
 volumes:
   data:
-    emptyDir: {}
+    emptyMediumDir: {}
 
 upstreams:
   - redis
@@ -89,7 +89,6 @@ labels:
    testKey1: testValue1 
    testKey2: testValue2
 `))
-
 	hx.ExecuteAll(os.Stdout, &hx.Spec)
 }
 
