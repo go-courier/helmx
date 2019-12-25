@@ -79,7 +79,9 @@ tolerations:
 
 volumes:
   data:
-    emptyDir: {}
+    emptyDir:
+      medium: Memory
+      sizeLimit: 128Mi
 
 upstreams:
   - redis
