@@ -5,6 +5,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+# [1.10.0](https://github.com/go-courier/helmx/compare/v1.9.0...v1.10.0)
+
+### Features
+
+* **feat(spec):** image pull registry could with username and password ([85c2907](https://github.com/go-courier/helmx/commit/85c29071f6e66d0bf46fbc089989ae8be4ed00c3))
+
+
+
 # [1.9.0](https://github.com/go-courier/helmx/compare/v1.8.0...v1.9.0)
 
 ### Features
