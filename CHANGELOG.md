@@ -5,6 +5,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+# [1.9.0](https://github.com/go-courier/helmx/compare/v1.8.0...v1.9.0)
+
+### Features
+
+* **feat(spec):** added serviceAccountRoleRules to support creating role-binded service account ([734c7a5](https://github.com/go-courier/helmx/commit/734c7a5f90210d288f5cc6d45aef917c1a3904bf))
+
+
+
 # [1.8.0](https://github.com/go-courier/helmx/compare/v1.7.0...v1.8.0)
 
 ### Features
