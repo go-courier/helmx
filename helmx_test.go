@@ -11,12 +11,13 @@ import (
 )
 
 func init() {
-	os.Setenv(spec.EnvKeyImagePullSecret, "qcloud-registry://ccr.ccs.tencentyun.com/prefix-")
+	os.Setenv(spec.EnvKeyImagePullSecret, "qcloud-registry://username:password@docker.io/pf-")
 }
 
 func Test(t *testing.T) {
 	hx := NewHelmX()
 
+	hx.AddTemplate("pullSecret", pullSecret)
 	hx.AddTemplate("serviceAccount", serviceAccount)
 	hx.AddTemplate("ingress", ingress)
 	hx.AddTemplate("service", service)
@@ -34,6 +35,7 @@ project:
   description: helmx
 
 service:
+  imagePullSecret: qcloud-registry://username:password@docker.io/pf-
   hostAliases:
     - "127.0.0.1:test1.com,test2.com"
     - "127.0.0.2:test2.com,test3.com"
@@ -232,7 +234,7 @@ spec:
     spec:
       containers:
       - name: helmx--test
-        image: ccr.ccs.tencentyun.com/prefix-helmx/helmx:0.0.0
+        image: docker.io/pf-helmx/helmx:0.0.0
         ports:
         - containerPort: 80
           protocol: TCP
@@ -440,6 +442,20 @@ roleRef:
   kind: Role
   name: {{ ( .Service.ServiceAccountName ) }}
   apiGroup: rbac.authorization.k8s.io
+
+{{ end }}
+`
+
+	pullSecret = `
+{{ if ( exists .Service.ImagePullSecret ) }}
+
+--- 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ ( .Service.ImagePullSecret.Name ) }}
+data:
+  .dockerconfigjson: {{ ( .Service.ImagePullSecret.Base64EncodedDockerConfigJSON ) }}
 
 {{ end }}
 `
