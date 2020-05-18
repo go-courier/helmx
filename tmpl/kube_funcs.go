@@ -17,6 +17,7 @@ var KubeFuncs = template.FuncMap{
 	"toKubeDeploymentSpec": ToKubeDeploymentSpec,
 	"toKubeJobSpec":        ToKubeJobSpec,
 	"toKubeCronJobSpec":    ToKubeCronJobSpec,
+	"toKubeRoleRules":      ToKubeRoleRoles,
 }
 
 func ToKubeServiceSpec(s spec.Spec) kubetypes.KubeServiceSpec {
@@ -106,6 +107,23 @@ func ToKubePodSpec(s spec.Spec, pod spec.Pod) kubetypes.KubePodSpec {
 	ps.HostAliases = ToKubeHosts(s)
 
 	return ps
+}
+
+func ToKubeRoleRoles(s spec.Spec) []kubetypes.KubeRoleRule {
+	rules := make([]kubetypes.KubeRoleRule, 0)
+
+	for _, r := range s.Service.ServiceAccountRoleRules {
+		rule := kubetypes.KubeRoleRule{
+			ApiGroups:     r.ApiGroups,
+			Resources:     r.Resources,
+			ResourceNames: r.ResourceNames,
+			Verbs:         r.Verbs,
+		}
+
+		rules = append(rules, rule)
+	}
+
+	return rules
 }
 
 func ToKubeIngressSpec(s spec.Spec) kubetypes.KubeIngressSpec {

@@ -27,8 +27,9 @@ func NewTemplateMgr() *TemplateMgr {
 }
 
 type TemplateMgr struct {
-	funcMap   template.FuncMap
-	templates map[string]*template.Template
+	funcMap       template.FuncMap
+	templateNames []string
+	templates     map[string]*template.Template
 }
 
 func (tplMgr *TemplateMgr) AddFunc(name string, fn interface{}) {
@@ -46,12 +47,17 @@ func (tplMgr *TemplateMgr) addTemplate(name string, text string) error {
 	if err != nil {
 		return err
 	}
+
+	if _, ok := tplMgr.templates[name]; !ok {
+		tplMgr.templateNames = append(tplMgr.templateNames, name)
+	}
+
 	tplMgr.templates[name] = tmpl
 	return nil
 }
 
 func (tplMgr *TemplateMgr) ExecuteAll(writer io.Writer, s *spec.Spec) error {
-	for name := range tplMgr.templates {
+	for _, name := range tplMgr.templateNames {
 		if err := tplMgr.execute(name, writer, s); err != nil {
 			return err
 		}

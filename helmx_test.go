@@ -16,6 +16,8 @@ func init() {
 
 func Test(t *testing.T) {
 	hx := NewHelmX()
+
+	hx.AddTemplate("serviceAccount", serviceAccount)
 	hx.AddTemplate("ingress", ingress)
 	hx.AddTemplate("service", service)
 	hx.AddTemplate("deployment", deployment)
@@ -46,6 +48,10 @@ service:
     preStop: "nginx -s quit"
   ingresses:
     - "http://helmx:80/helmx"
+  serviceAccountName: test
+  serviceAccountRoleRules:
+    - secrets#get,update
+
   initials:
     - image: dockercloud/hello-world
       mounts:
@@ -92,7 +98,9 @@ labels:
    testKey2: testValue2
 `))
 
-	_ = hx.ExecuteAll(os.Stdout, &hx.Spec)
+	if err := hx.ExecuteAll(os.Stdout, &hx.Spec); err != nil {
+		panic(err)
+	}
 }
 
 func TestTemplates(t *testing.T) {
@@ -399,6 +407,40 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
 spec:
 {{ spaces 2 | toYamlIndent ( toKubeIngressSpec . )}}
+{{ end }}
+`
+	serviceAccount = `
+{{ if ( len .Service.ServiceAccountRoleRules ) }}
+
+--- 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ ( .Service.ServiceAccountName ) }}
+rules:
+{{ spaces 2 | toYamlIndent ( toKubeRoleRules . )}}
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ ( .Service.ServiceAccountName ) }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ ( .Service.ServiceAccountName ) }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ ( .Service.ServiceAccountName ) }}
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: {{ ( .Service.ServiceAccountName ) }}
+  apiGroup: rbac.authorization.k8s.io
+
 {{ end }}
 `
 )

@@ -4,6 +4,13 @@ type KubeIngressSpec struct {
 	Rules []IngressRule `yaml:"rules"`
 }
 
+type KubeRoleRule struct {
+	ApiGroups     []string `yaml:"apiGroups"`
+	Resources     []string `yaml:"resources"`
+	ResourceNames []string `yaml:"resourceNames,omitempty"`
+	Verbs         []string `yaml:"verbs"`
+}
+
 type IngressRule struct {
 	Host string                `yaml:"host,omitempty"`
 	HTTP *HTTPIngressRuleValue `yaml:"http,omitempty"`
