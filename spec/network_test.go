@@ -44,13 +44,14 @@ func TestIngressRule(t *testing.T) {
 
 func TestPort(t *testing.T) {
 	t.Run("parse & string", func(t *testing.T) {
-		sp, _ := ParsePort("80:8080/TCP")
+		sp, _ := ParsePort("http-80:8080/TCP")
 
+		require.Equal(t, "http", sp.AppProtocol)
 		require.Equal(t, uint16(80), sp.Port)
 		require.Equal(t, uint16(8080), sp.ContainerPort)
 		require.Equal(t, constants.ProtocolTCP, sp.Protocol)
 
-		require.Equal(t, "80:8080/tcp", sp.String())
+		require.Equal(t, "http-80:8080/tcp", sp.String())
 	})
 
 	t.Run("parse & string without target port ", func(t *testing.T) {

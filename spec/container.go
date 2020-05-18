@@ -325,9 +325,7 @@ func ParseHosts(s string) (*Hosts, error) {
 	kv := strings.Split(parts[1], ",")
 
 	if len(kv) > 0 {
-		for _, name := range kv {
-			t.HostNames = append(t.HostNames, name)
-		}
+		t.HostNames = append(t.HostNames, kv...)
 	}
 
 	return t, nil

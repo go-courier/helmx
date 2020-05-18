@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var versionRegexp = regexp.MustCompile("(\\d+)\\.(\\d+)\\.(\\d+)")
+var versionRegexp = regexp.MustCompile(`(\d+)\.(\d+)\.(\d+)`)
 
 func ParseVersion(s string) (*Version, error) {
 	matched := versionRegexp.FindAllStringSubmatch(s, -1)

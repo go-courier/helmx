@@ -25,19 +25,26 @@ func ToKubeServiceSpec(s spec.Spec) kubetypes.KubeServiceSpec {
 	}
 
 	for _, port := range s.Service.Ports {
+		appProtocol := port.AppProtocol
+
+		if appProtocol == "" {
+			appProtocol = "http"
+		}
+
 		p := kubetypes.KubeServicePort{
+			Name:       fmt.Sprintf("%s-%d", appProtocol, port.Port),
 			Port:       port.Port,
 			TargetPort: port.ContainerPort,
 		}
 
 		if port.IsNodePort {
 			ss.Type = kubetypes.ServiceTypeNodePort
-			p.Name = fmt.Sprintf("node-port-%d", port.Port)
+
+			p.Name = "np-" + p.Name
+
 			if port.Port >= 20000 && port.Port <= 40000 {
 				p.NodePort = port.Port
 			}
-		} else {
-			p.Name = fmt.Sprintf("port-%d", port.Port)
 		}
 
 		if port.Protocol == "" {

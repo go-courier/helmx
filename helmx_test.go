@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/go-courier/helmx/spec"
-	"github.com/stretchr/testify/require"
+	"github.com/onsi/gomega"
 )
 
 func init() {
@@ -22,7 +22,7 @@ func Test(t *testing.T) {
 	hx.AddTemplate("job", job)
 	hx.AddTemplate("cronJob", cronJob)
 
-	hx.FromYAML([]byte(
+	_ = hx.FromYAML([]byte(
 		`
 project:
   name: helmx
@@ -92,7 +92,7 @@ labels:
    testKey2: testValue2
 `))
 
-	hx.ExecuteAll(os.Stdout, &hx.Spec)
+	_ = hx.ExecuteAll(os.Stdout, &hx.Spec)
 }
 
 func TestTemplates(t *testing.T) {
@@ -128,7 +128,7 @@ spec:
     srv: helmx--test
   type: ClusterIP
   ports:
-  - name: port-80
+  - name: http-80
     port: 80
     targetPort: 80
     protocol: TCP
@@ -163,26 +163,26 @@ spec:
     srv: helmx--test
   type: NodePort
   ports:
-  - name: node-port-20000
+  - name: np-http-20000
     nodePort: 20000
     port: 20000
     targetPort: 80
     protocol: TCP
-  - name: node-port-80
+  - name: np-http-80
     port: 80
     targetPort: 80
     protocol: TCP
-  - name: node-port-25000
+  - name: np-http-25000
     nodePort: 25000
     port: 25000
     targetPort: 25000
     protocol: TCP
-  - name: node-port-40000
+  - name: np-http-40000
     nodePort: 40000
     port: 40000
     targetPort: 80
     protocol: TCP
-  - name: port-80
+  - name: http-80
     port: 80
     targetPort: 8080
     protocol: TCP
@@ -202,14 +202,16 @@ service:
 `,
 			deployment,
 			`
-
 ---
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: helmx--test
-  annotations: 
+  labels:
+    app: helmx--test
+    version: 0.0.0
+  annotations:
     helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]}}"
 spec:
   selector:
@@ -341,7 +343,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ ( .Project.FullName ) }}
-  annotations: 
+  labels:
+    app: {{ ( .Project.FullName ) }}
+    version: {{ ( .Project.Version ) }}
+  annotations:
     helmx: {{ toJson . | quote }}
 spec:
   selector:
@@ -401,15 +406,13 @@ spec:
 func check(t *testing.T, helmx string, tmpl string, expect string) {
 	hx := NewHelmX()
 	err := hx.FromYAML([]byte(helmx))
-	require.NoError(t, err)
+	gomega.NewWithT(t).Expect(err).To(gomega.BeNil())
 
 	hx.AddTemplate("tmpl", tmpl)
 
 	buf := &bytes.Buffer{}
 	err = hx.ExecuteAll(buf, &hx.Spec)
-	require.NoError(t, err)
+	gomega.NewWithT(t).Expect(err).To(gomega.BeNil())
 
-	//fmt.Println(buf.String())
-
-	require.Equal(t, strings.TrimSpace(expect), strings.TrimSpace(buf.String()))
+	gomega.NewWithT(t).Expect(strings.TrimSpace(buf.String())).To(gomega.Equal(strings.TrimSpace(expect)))
 }

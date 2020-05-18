@@ -14,6 +14,7 @@ func ParsePort(s string) (*Port, error) {
 		return nil, fmt.Errorf("missing port value")
 	}
 
+	appProtocol := ""
 	port := uint16(0)
 	targetPort := uint16(0)
 	protocol := ""
@@ -34,7 +35,16 @@ func ParsePort(s string) (*Port, error) {
 
 	ports := strings.Split(s, ":")
 
-	p, err := strconv.ParseUint(ports[0], 10, 16)
+	portStr := ports[0]
+
+	appProtocolAndPort := strings.Split(portStr, "-")
+
+	if len(appProtocolAndPort) == 2 {
+		portStr = appProtocolAndPort[1]
+		appProtocol = strings.ToLower(appProtocolAndPort[0])
+	}
+
+	p, err := strconv.ParseUint(portStr, 10, 16)
 	if err != nil {
 		return nil, fmt.Errorf("invalid port %v", ports[0])
 	}
@@ -42,16 +52,14 @@ func ParsePort(s string) (*Port, error) {
 	port = uint16(p)
 
 	if len(ports) == 2 {
-
 		if isNodePort {
 			if port < 20000 || p > 40000 {
-				return nil, fmt.Errorf("Invalid value: %d: provided port is not in the valid range. The range of valid ports is 20000-40000", port)
+				return nil, fmt.Errorf("invalid value: %d: provided port is not in the valid range. The range of valid ports is 20000-40000", port)
 			}
 		}
-
 		p, err := strconv.ParseUint(ports[1], 10, 16)
 		if err != nil {
-			panic(fmt.Errorf("invalid target port %v", ports[1]))
+			return nil, fmt.Errorf("invalid target port %v", ports[1])
 		}
 		targetPort = uint16(p)
 	} else {
@@ -59,8 +67,9 @@ func ParsePort(s string) (*Port, error) {
 	}
 
 	return &Port{
-		IsNodePort:    isNodePort,
+		AppProtocol:   appProtocol,
 		Port:          port,
+		IsNodePort:    isNodePort,
 		ContainerPort: targetPort,
 		Protocol:      constants.Protocol(strings.ToUpper(protocol)),
 	}, nil
@@ -68,6 +77,7 @@ func ParsePort(s string) (*Port, error) {
 
 // openapi:strfmt port
 type Port struct {
+	AppProtocol   string
 	Port          uint16
 	IsNodePort    bool
 	ContainerPort uint16
@@ -76,20 +86,24 @@ type Port struct {
 
 func (s Port) String() string {
 	v := ""
-	if s.Protocol != "" {
-		v = "/" + strings.ToLower(string(s.Protocol))
+	if s.IsNodePort {
+		v = "!"
 	}
 
-	if s.ContainerPort != 0 && s.ContainerPort != s.Port {
-		v = ":" + strconv.FormatUint(uint64(s.ContainerPort), 10) + v
+	if s.AppProtocol != "" {
+		v += s.AppProtocol + "-"
 	}
 
 	if s.Port != 0 {
-		v = strconv.FormatUint(uint64(s.Port), 10) + v
+		v += strconv.FormatUint(uint64(s.Port), 10)
 	}
 
-	if s.IsNodePort {
-		v = "!" + v
+	if s.ContainerPort != 0 && s.ContainerPort != s.Port {
+		v += ":" + strconv.FormatUint(uint64(s.ContainerPort), 10)
+	}
+
+	if s.Protocol != "" {
+		v += "/" + strings.ToLower(string(s.Protocol))
 	}
 
 	return v
