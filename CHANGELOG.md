@@ -5,6 +5,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+# [1.10.1](https://github.com/go-courier/helmx/compare/v1.10.0...v1.10.1)
+
+### Bug Fixes
+
+* **fix** ImagePullSecret.String ([5f9fdb7](https://github.com/go-courier/helmx/commit/5f9fdb7df43778370408ae1374efc2d7c7e78093))
+
+
+
 # [1.10.0](https://github.com/go-courier/helmx/compare/v1.9.0...v1.10.0)
 
 ### Features
