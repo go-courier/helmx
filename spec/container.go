@@ -118,7 +118,7 @@ func (s ImagePullSecret) String() string {
 	v := &url.URL{}
 	v.Scheme = s.Name
 	v.Host = s.Host
-	v.Path = "/" + s.Prefix
+	v.Path = s.Prefix
 
 	if s.Username != "" || s.Password != "" {
 		v.User = url.UserPassword(s.Username, s.Password)
