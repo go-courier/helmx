@@ -2,6 +2,7 @@ package helmx
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -35,6 +36,7 @@ project:
   description: helmx
 
 service:
+  hostNetwork: true
   imagePullSecret: qcloud-registry://username:password@docker.io/pf-
   hostAliases:
     - "127.0.0.1:test1.com,test2.com"
@@ -203,12 +205,12 @@ spec:
 	t.Run("deployment", func(t *testing.T) {
 		check(t, baseProject+`
 service:
+  hostNetwork: true
   hosts:
     - "127.0.0.1:test1.com,test2.com"
     - "127.0.0.2:test3.com,test4.com"
   ports:
     - "80:80"
-
 `,
 			deployment,
 			`
@@ -222,7 +224,7 @@ metadata:
     app: helmx--test
     version: 0.0.0
   annotations:
-    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]}}"
+    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"hostNetwork\":true,\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]}}"
 spec:
   selector:
     matchLabels:
@@ -240,6 +242,7 @@ spec:
           protocol: TCP
       imagePullSecrets:
       - name: qcloud-registry
+      hostNetwork: true
       hostAliases:
       - ip: 127.0.0.1
         hostnames:
@@ -472,5 +475,7 @@ func check(t *testing.T, helmx string, tmpl string, expect string) {
 	err = hx.ExecuteAll(buf, &hx.Spec)
 	gomega.NewWithT(t).Expect(err).To(gomega.BeNil())
 
+	fmt.Println(buf.String())
+	fmt.Println(expect)
 	gomega.NewWithT(t).Expect(strings.TrimSpace(buf.String())).To(gomega.Equal(strings.TrimSpace(expect)))
 }

@@ -22,6 +22,7 @@ type PodOpts struct {
 	DNSConfig                     *DNSConfig        `json:"dnsConfig,omitempty" yaml:"dnsConfig,omitempty"`
 	NodeSelector                  map[string]string `json:"nodeSelector,omitempty" yaml:"nodeSelector,omitempty"`
 	ServiceAccountName            string            `json:"serviceAccountName,omitempty" yaml:"serviceAccountName,omitempty"`
+	HostNetwork                   *bool             `json:"hostNetwork,omitempty" yaml:"hostNetwork,omitempty"`
 }
 
 type DNSConfig struct {
