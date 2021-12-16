@@ -2,7 +2,6 @@ package helmx
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -474,8 +473,5 @@ func check(t *testing.T, helmx string, tmpl string, expect string) {
 	buf := &bytes.Buffer{}
 	err = hx.ExecuteAll(buf, &hx.Spec)
 	gomega.NewWithT(t).Expect(err).To(gomega.BeNil())
-
-	fmt.Println(buf.String())
-	fmt.Println(expect)
 	gomega.NewWithT(t).Expect(strings.TrimSpace(buf.String())).To(gomega.Equal(strings.TrimSpace(expect)))
 }
