@@ -221,6 +221,7 @@ service:
     runAsNonRoot: true
     readOnlyRootFilesystem: true
     privileged: true
+
 `,
 			deployment,
 			`
