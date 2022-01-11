@@ -53,7 +53,7 @@ type KubeContainer struct {
 	Lifecycle      *Lifecycle           `yaml:"lifecycle,omitempty"`
 	ReadinessProbe *Probe               `yaml:"readinessProbe,omitempty"`
 	LivenessProbe  *Probe               `yaml:"livenessProbe,omitempty"`
-
+    SecurityContext *SecurityContext    `yaml:"securityContext,omitempty"`
 	KubeImage          `yaml:",inline"`
 	KubeContainerPorts `yaml:",inline"`
 	KubeVolumeMounts   `yaml:",inline"`

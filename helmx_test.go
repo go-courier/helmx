@@ -54,7 +54,12 @@ service:
   serviceAccountName: test
   serviceAccountRoleRules:
     - secrets#get,update
-
+  securityContext:
+    runAsUser: 1024
+    runAsGroup: 1000
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    privileged: true
   initials:
     - image: dockercloud/hello-world
       mounts:
@@ -210,6 +215,12 @@ service:
     - "127.0.0.2:test3.com,test4.com"
   ports:
     - "80:80"
+  securityContext:
+    runAsUser: 1024
+    runAsGroup: 1000
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    privileged: true
 `,
 			deployment,
 			`
@@ -223,7 +234,7 @@ metadata:
     app: helmx--test
     version: 0.0.0
   annotations:
-    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"hostNetwork\":true,\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]}}"
+    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"securityContext\":{\"Capabilities\":null,\"RunAsUser\":1024,\"RunAsGroup\":1000,\"RunAsNonRoot\":true,\"ReadOnlyRootFilesystem\":true,\"AllowPrivilegeEscalation\":null,\"ProcMount\":null,\"Privileged\":true,\"SELinuxOptions\":null},\"hostNetwork\":true,\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]}}"
 spec:
   selector:
     matchLabels:
@@ -235,6 +246,12 @@ spec:
     spec:
       containers:
       - name: helmx--test
+        securityContext:
+          runAsUser: 1024
+          runAsGroup: 1000
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          privileged: true
         image: docker.io/pf-helmx/helmx:0.0.0
         ports:
         - containerPort: 80
