@@ -210,6 +210,45 @@ func ToKubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 	ss.Args = c.Args
 	ss.TTY = c.TTY
 
+	if c.SecurityContext != nil {
+		ss.SecurityContext = &kubetypes.SecurityContext{}
+		if c.SecurityContext.Capabilities != nil {
+			ss.SecurityContext.Capabilities = c.SecurityContext.Capabilities
+		}
+
+		if c.SecurityContext.RunAsUser != nil {
+			ss.SecurityContext.RunAsUser = c.SecurityContext.RunAsUser
+		}
+
+		if c.SecurityContext.RunAsGroup != nil {
+			ss.SecurityContext.RunAsGroup = c.SecurityContext.RunAsGroup
+		}
+
+		if c.SecurityContext.RunAsNonRoot != nil {
+			ss.SecurityContext.RunAsNonRoot = c.SecurityContext.RunAsNonRoot
+		}
+
+		if c.SecurityContext.ReadOnlyRootFilesystem != nil {
+			ss.SecurityContext.ReadOnlyRootFilesystem = c.SecurityContext.ReadOnlyRootFilesystem
+		}
+
+		if c.SecurityContext.AllowPrivilegeEscalation != nil {
+			ss.SecurityContext.AllowPrivilegeEscalation = c.SecurityContext.AllowPrivilegeEscalation
+		}
+
+		if c.SecurityContext.ProcMount != nil {
+			ss.SecurityContext.ProcMount = c.SecurityContext.ProcMount
+		}
+
+		if c.SecurityContext.Privileged != nil {
+			ss.SecurityContext.Privileged = c.SecurityContext.Privileged
+		}
+
+		if c.SecurityContext.SELinuxOptions != nil {
+			ss.SecurityContext.SELinuxOptions = c.SecurityContext.SELinuxOptions
+		}
+	}
+
 	if c.LivenessProbe != nil {
 		ss.LivenessProbe = &kubetypes.Probe{
 			Handler:   c.LivenessProbe.Action.Handler,

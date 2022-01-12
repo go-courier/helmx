@@ -20,9 +20,11 @@ project:
   description: helmx
 
 service:
-  hosts:
+  hostNetwork: true
+  imagePullSecret: qcloud-registry://username:password@docker.io/pf-
+  hostAliases:
     - "127.0.0.1:test1.com,test2.com"
-    - "127.0.0.2:test3.com,test4.com"
+    - "127.0.0.2:test2.com,test3.com"
   mounts:
     - "data:/usr/share/nginx:ro"
   ports:
@@ -34,6 +36,15 @@ service:
     preStop: "nginx -s quit"
   ingresses:
     - "http://helmx:80/helmx"
+  serviceAccountName: test
+  serviceAccountRoleRules:
+    - secrets#get,update
+  securityContext:
+    runAsUser: 1024
+    runAsGroup: 1000
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    privileged: true
   initials:
     - image: dockercloud/hello-world
       mounts:
@@ -57,8 +68,9 @@ envs:
   env: "test"
 
 resources:
-  cpu: 10/20
-  memory: 20
+  cpu: 10/20m
+  memory: 0/20Mi
+  nvidia.com/gpu: 0/20
 
 tolerations:
   - env=test
@@ -66,13 +78,15 @@ tolerations:
 
 volumes:
   data:
-    emptyDir: {}
+    emptyDir:
+      medium: Memory
+      sizeLimit: "1Gi"
 
 upstreams:
   - redis
   - mysql
 
 labels:
-   testKey1: testValue1 
-   testKey2: testValue2
+  testKey1: testValue1
+  testKey2: testValue2
 ```
