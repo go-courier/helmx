@@ -30,7 +30,7 @@ type Container struct {
 	ReadinessProbe *Probe     `json:"readinessProbe,omitempty" yaml:"readinessProbe,omitempty"`
 	LivenessProbe  *Probe     `json:"livenessProbe,omitempty" yaml:"livenessProbe,omitempty"`
 	Lifecycle      *Lifecycle `json:"lifecycle,omitempty" yaml:"lifecycle,omitempty"`
-	SecurityContext *kubetypes.SecurityContext `json:"securityContext,omitempty" yaml:"securityContext,omitempty"`
+	SecurityContext *kubetypes.SecurityContext `json:"securityContext,omitempty" yaml:"securityContext,omitempty"` // securityContext
 }
 
 type Lifecycle struct {
