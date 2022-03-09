@@ -105,6 +105,8 @@ func ToKubePodSpec(s spec.Spec, pod spec.Pod) kubetypes.KubePodSpec {
 	ps.KubeImagePullSecrets = ToKubeImagePullSecrets(s, pod)
 	ps.PodOpts = pod.PodOpts
 	ps.HostAliases = ToKubeHosts(s)
+	ps.KubeTopologySpreadConstraints = ToKubeTopologySpreadConstraints(pod)
+	ps.KubeAffinity = ToKubeAffinity(pod)
 
 	return ps
 }
@@ -407,4 +409,18 @@ func ToKubeHosts(s spec.Spec) []kubetypes.KubeHosts {
 		}
 	}
 	return ss
+}
+
+func ToKubeTopologySpreadConstraints(pod spec.Pod) kubetypes.KubeTopologySpreadConstraints {
+	if pod.KubeTopologySpreadConstraints != nil {
+		return *pod.KubeTopologySpreadConstraints
+	}
+	return kubetypes.KubeTopologySpreadConstraints{}
+}
+
+func ToKubeAffinity(pod spec.Pod) kubetypes.KubeAffinity {
+	if pod.KubeAffinity != nil {
+		return *pod.KubeAffinity
+	}
+	return kubetypes.KubeAffinity{}
 }

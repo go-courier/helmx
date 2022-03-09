@@ -5,13 +5,15 @@ import (
 )
 
 type KubePodSpec struct {
-	KubeVolumes          `yaml:",inline"`
-	KubeInitContainers   `yaml:",inline"`
-	KubeContainers       `yaml:",inline"`
-	KubeImagePullSecrets `yaml:",inline"`
-	KubeTolerations      `yaml:",inline"`
-	PodOpts              `yaml:",inline"`
-	HostAliases          []KubeHosts `yaml:"hostAliases,omitempty" json:"hostAliases,omitempty"`
+	KubeVolumes                   `yaml:",inline"`
+	KubeInitContainers            `yaml:",inline"`
+	KubeContainers                `yaml:",inline"`
+	KubeImagePullSecrets          `yaml:",inline"`
+	KubeTolerations               `yaml:",inline"`
+	PodOpts                       `yaml:",inline"`
+	HostAliases                   []KubeHosts `yaml:"hostAliases,omitempty" json:"hostAliases,omitempty"`
+	KubeTopologySpreadConstraints `yaml:",inline"`
+	KubeAffinity                  `yaml:",inline"`
 }
 
 type PodOpts struct {
@@ -44,16 +46,16 @@ type KubeImagePullSecrets struct {
 }
 
 type KubeContainer struct {
-	Name           string               `yaml:"name"`
-	Command        []string             `yaml:"command,omitempty"`
-	Args           []string             `yaml:"args,omitempty"`
-	WorkingDir     string               `yaml:"workingDir,omitempty"`
-	TTY            bool                 `yaml:"tty,omitempty"`
-	Resources      ResourceRequirements `yaml:"resources,omitempty"`
-	Lifecycle      *Lifecycle           `yaml:"lifecycle,omitempty"`
-	ReadinessProbe *Probe               `yaml:"readinessProbe,omitempty"`
-	LivenessProbe  *Probe               `yaml:"livenessProbe,omitempty"`
-    SecurityContext *SecurityContext    `yaml:"securityContext,omitempty"`
+	Name               string               `yaml:"name"`
+	Command            []string             `yaml:"command,omitempty"`
+	Args               []string             `yaml:"args,omitempty"`
+	WorkingDir         string               `yaml:"workingDir,omitempty"`
+	TTY                bool                 `yaml:"tty,omitempty"`
+	Resources          ResourceRequirements `yaml:"resources,omitempty"`
+	Lifecycle          *Lifecycle           `yaml:"lifecycle,omitempty"`
+	ReadinessProbe     *Probe               `yaml:"readinessProbe,omitempty"`
+	LivenessProbe      *Probe               `yaml:"livenessProbe,omitempty"`
+	SecurityContext    *SecurityContext     `yaml:"securityContext,omitempty"`
 	KubeImage          `yaml:",inline"`
 	KubeContainerPorts `yaml:",inline"`
 	KubeVolumeMounts   `yaml:",inline"`
