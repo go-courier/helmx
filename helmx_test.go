@@ -25,7 +25,7 @@ func Test(t *testing.T) {
 	hx.AddTemplate("job", job)
 	hx.AddTemplate("cronJob", cronJob)
 
-	_ = hx.FromYAML([]byte(
+	if err := hx.FromYAML([]byte(
 		`
 project:
   name: helmx
@@ -60,6 +60,22 @@ service:
     runAsNonRoot: true
     readOnlyRootFilesystem: true
     privileged: true
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        foo: bar
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: zone
+            operator: NotIn
+            values:
+            - zoneC
   initials:
     - image: dockercloud/hello-world
       mounts:
@@ -104,7 +120,9 @@ upstreams:
 labels:
    testKey1: testValue1 
    testKey2: testValue2
-`))
+`)); err != nil {
+		t.Fatal(err)
+	}
 
 	if err := hx.ExecuteAll(os.Stdout, &hx.Spec); err != nil {
 		panic(err)

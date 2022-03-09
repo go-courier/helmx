@@ -31,8 +31,8 @@ type Container struct {
 	LivenessProbe                 *Probe                                   `json:"livenessProbe,omitempty" yaml:"livenessProbe,omitempty"`
 	Lifecycle                     *Lifecycle                               `json:"lifecycle,omitempty" yaml:"lifecycle,omitempty"`
 	SecurityContext               *kubetypes.SecurityContext               `json:"securityContext,omitempty" yaml:"securityContext,omitempty"` // securityContext
-	KubeTopologySpreadConstraints *kubetypes.KubeTopologySpreadConstraints `json:"topologySpreadConstraints,omitempty" yaml:"topologySpreadConstraints,omitempty"`
-	KubeAffinity                  *kubetypes.KubeAffinity                  `json:"affinity,omitempty" yaml:"affinity,omitempty"`
+	kubetypes.KubeTopologySpreadConstraints `yaml:",inline" json:",inline"`
+	kubetypes.KubeAffinity                  `yaml:",inline" json:",inline"`
 }
 
 type Lifecycle struct {

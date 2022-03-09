@@ -412,15 +412,9 @@ func ToKubeHosts(s spec.Spec) []kubetypes.KubeHosts {
 }
 
 func ToKubeTopologySpreadConstraints(pod spec.Pod) kubetypes.KubeTopologySpreadConstraints {
-	if pod.KubeTopologySpreadConstraints != nil {
-		return *pod.KubeTopologySpreadConstraints
-	}
-	return kubetypes.KubeTopologySpreadConstraints{}
+	return pod.KubeTopologySpreadConstraints
 }
 
 func ToKubeAffinity(pod spec.Pod) kubetypes.KubeAffinity {
-	if pod.KubeAffinity != nil {
-		return *pod.KubeAffinity
-	}
-	return kubetypes.KubeAffinity{}
+	return pod.KubeAffinity
 }
