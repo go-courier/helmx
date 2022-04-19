@@ -45,6 +45,22 @@ service:
     runAsNonRoot: true
     readOnlyRootFilesystem: true
     privileged: true
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: zone
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          foo: bar
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: zone
+                operator: NotIn
+                values:
+                  - zoneC
   initials:
     - image: dockercloud/hello-world
       mounts:
