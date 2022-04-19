@@ -1,6 +1,7 @@
 package tmpl_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/go-courier/helmx/kubetypes"
 	"gopkg.in/yaml.v2"
@@ -75,4 +76,9 @@ affinity:
 		js := tmpl.ToKubeAffinity(pod)
 		spew.Dump(js)
 	})
+}
+
+func LogJSON(v interface{}) {
+	data, _ := json.MarshalIndent(v, "", "  ")
+	fmt.Println(string(data))
 }
