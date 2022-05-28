@@ -19,11 +19,10 @@ func ParsePort(s string) (*Port, error) {
 	targetPort := uint16(0)
 	protocol := ""
 	isNodePort := false
+	nodePort := uint16(0)
 
 	parts := strings.Split(s, "/")
-
 	s = parts[0]
-
 	if len(parts) == 2 {
 		protocol = strings.ToLower(parts[1])
 	}
@@ -34,11 +33,8 @@ func ParsePort(s string) (*Port, error) {
 	}
 
 	ports := strings.Split(s, ":")
-
 	portStr := ports[0]
-
 	appProtocolAndPort := strings.Split(portStr, "-")
-
 	if len(appProtocolAndPort) == 2 {
 		portStr = appProtocolAndPort[1]
 		appProtocol = strings.ToLower(appProtocolAndPort[0])
@@ -48,26 +44,31 @@ func ParsePort(s string) (*Port, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid port %v", ports[0])
 	}
-
-	port = uint16(p)
-
 	if len(ports) == 2 {
-		if isNodePort {
-			if port < 20000 || p > 40000 {
-				return nil, fmt.Errorf("invalid value: %d: provided port is not in the valid range. The range of valid ports is 20000-40000", port)
-			}
-		}
-		p, err := strconv.ParseUint(ports[1], 10, 16)
+		tp, err := strconv.ParseUint(ports[1], 10, 16)
 		if err != nil {
 			return nil, fmt.Errorf("invalid target port %v", ports[1])
 		}
-		targetPort = uint16(p)
+		targetPort = uint16(tp)
+
+		if isNodePort {
+			nodePort = uint16(p)
+			port = uint16(tp)
+			if nodePort < 20000 || nodePort > 40000 {
+				return nil, fmt.Errorf("invalid value: %d: provided port is not in the valid range. The range of valid ports is 20000-40000", port)
+			}
+		} else {
+			port = uint16(p)
+		}
+
 	} else {
-		targetPort = port
+		targetPort = uint16(p)
+		port = targetPort
 	}
 
 	return &Port{
 		AppProtocol:   appProtocol,
+		NodePort:      nodePort,
 		Port:          port,
 		IsNodePort:    isNodePort,
 		ContainerPort: targetPort,
@@ -78,6 +79,7 @@ func ParsePort(s string) (*Port, error) {
 // openapi:strfmt port
 type Port struct {
 	AppProtocol   string
+	NodePort      uint16
 	Port          uint16
 	IsNodePort    bool
 	ContainerPort uint16
@@ -94,12 +96,25 @@ func (s Port) String() string {
 		v += s.AppProtocol + "-"
 	}
 
-	if s.Port != 0 {
-		v += strconv.FormatUint(uint64(s.Port), 10)
-	}
+	if s.IsNodePort {
+		if s.NodePort != 0 {
+			v += strconv.FormatUint(uint64(s.NodePort), 10)
+			if s.ContainerPort != 0 {
+				v += ":" + strconv.FormatUint(uint64(s.ContainerPort), 10)
+			}
+		} else {
+			if s.ContainerPort != 0 {
+				v += strconv.FormatUint(uint64(s.ContainerPort), 10)
+			}
+		}
 
-	if s.ContainerPort != 0 && s.ContainerPort != s.Port {
-		v += ":" + strconv.FormatUint(uint64(s.ContainerPort), 10)
+	} else {
+		if s.Port != 0 {
+			v += strconv.FormatUint(uint64(s.Port), 10)
+		}
+		if s.ContainerPort != 0 && s.ContainerPort != s.Port {
+			v += ":" + strconv.FormatUint(uint64(s.ContainerPort), 10)
+		}
 	}
 
 	if s.Protocol != "" {

@@ -40,11 +40,15 @@ func ToKubeServiceSpec(s spec.Spec) kubetypes.KubeServiceSpec {
 
 		if port.IsNodePort {
 			ss.Type = kubetypes.ServiceTypeNodePort
+			if port.NodePort != 0 {
+				p.Name = "np-" + fmt.Sprintf("%s-%d", appProtocol, port.NodePort)
+			} else {
+				fmt.Println("+++++", port)
+				p.Name = fmt.Sprintf("%s-%d", appProtocol, port.Port)
+			}
 
-			p.Name = "np-" + p.Name
-
-			if port.Port >= 20000 && port.Port <= 40000 {
-				p.NodePort = port.Port
+			if port.NodePort >= 20000 && port.NodePort <= 40000 {
+				p.NodePort = port.NodePort
 			}
 		}
 
