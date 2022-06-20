@@ -82,9 +82,10 @@ jobs:
 
 envs:
   env: "test"
-  secretFalse: "secretName.secretKey.false"
-  secretTrue: "secretName.secretKey.true"
-  configMap: "configMapName.configMapKey"
+  valueWithDot: "value.with.dot"
+  secretFalse: "####secretName.secretKey.false####"
+  secretTrue: "####secretName.secretKey.true####"
+  configMap: "####configMapName.configMapKey####"
   
 resources:
   cpu: 10/20m

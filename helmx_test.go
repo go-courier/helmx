@@ -1,33 +1,33 @@
 package helmx
 
 import (
-	"bytes"
-	"fmt"
-	"os"
-	"strings"
-	"testing"
+    "bytes"
+    "fmt"
+    "os"
+    "strings"
+    "testing"
 
-	"github.com/go-courier/helmx/spec"
-	"github.com/onsi/gomega"
+    "github.com/go-courier/helmx/spec"
+    "github.com/onsi/gomega"
 )
 
 func init() {
-	os.Setenv(spec.EnvKeyImagePullSecret, "qcloud-registry://username:password@docker.io/pf-")
+    os.Setenv(spec.EnvKeyImagePullSecret, "qcloud-registry://username:password@docker.io/pf-")
 }
 
 func Test(t *testing.T) {
-	hx := NewHelmX()
+    hx := NewHelmX()
 
-	hx.AddTemplate("pullSecret", pullSecret)
-	hx.AddTemplate("serviceAccount", serviceAccount)
-	hx.AddTemplate("ingress", ingress)
-	hx.AddTemplate("service", service)
-	hx.AddTemplate("deployment", deployment)
-	hx.AddTemplate("job", job)
-	hx.AddTemplate("cronJob", cronJob)
+    hx.AddTemplate("pullSecret", pullSecret)
+    hx.AddTemplate("serviceAccount", serviceAccount)
+    hx.AddTemplate("ingress", ingress)
+    hx.AddTemplate("service", service)
+    hx.AddTemplate("deployment", deployment)
+    hx.AddTemplate("job", job)
+    hx.AddTemplate("cronJob", cronJob)
 
-	if err := hx.FromYAML([]byte(
-		`
+    if err := hx.FromYAML([]byte(
+        `
 project:
   name: helmx
   feature: test
@@ -98,9 +98,12 @@ jobs:
 
 envs:
   env: "test"
-  secretFalse: "secretName.secretKey.false"
-  secretTrue: "secretName.secretKey.true"
-  configMap: "configMapName.configMapKey"
+  valueWithDot: "value.with.dot"
+  secretFalse: "####secretName.secretKey.false####"
+  secretTrue: "####secretName.secretKey.true####"
+  configMap: "####configMapName.configMapKey####"
+
+
 resources:
   cpu: 10/20m
   memory: 0/20Mi
@@ -124,16 +127,16 @@ labels:
    testKey1: testValue1 
    testKey2: testValue2
 `)); err != nil {
-		t.Fatal(err)
-	}
+        t.Fatal(err)
+    }
 
-	if err := hx.ExecuteAll(os.Stdout, &hx.Spec); err != nil {
-		panic(err)
-	}
+    if err := hx.ExecuteAll(os.Stdout, &hx.Spec); err != nil {
+        panic(err)
+    }
 }
 
 func TestTemplates(t *testing.T) {
-	baseProject := `
+    baseProject := `
 project:
   name: helmx
   feature: test
@@ -142,14 +145,14 @@ project:
   description: helmx
 `
 
-	t.Run("service", func(t *testing.T) {
-		check(t, baseProject+`
+    t.Run("service", func(t *testing.T) {
+        check(t, baseProject+`
 service:
   ports:
     - "80:80"
 `,
-			service,
-			`
+            service,
+            `
 --- 
 
 apiVersion: v1
@@ -170,11 +173,11 @@ spec:
     targetPort: 80
     protocol: TCP
 `,
-		)
-	})
+        )
+    })
 
-	t.Run("service with nodePort", func(t *testing.T) {
-		check(t, baseProject+`
+    t.Run("service with nodePort", func(t *testing.T) {
+        check(t, baseProject+`
 service:
   ports:
     - "!20000:80"
@@ -184,8 +187,8 @@ service:
     - "80:8080"
 	- "80"
 `,
-			service,
-			`
+            service,
+            `
 --- 
 
 apiVersion: v1
@@ -229,11 +232,11 @@ spec:
     targetPort: 80
     protocol: TCP
 `,
-		)
-	})
+        )
+    })
 
-	t.Run("deployment", func(t *testing.T) {
-		check(t, baseProject+`
+    t.Run("deployment", func(t *testing.T) {
+        check(t, baseProject+`
 service:
   hostNetwork: true
   hosts:
@@ -249,12 +252,13 @@ service:
     privileged: true
 envs:
   env: "test"
-  secretFalse: "secretName.secretKey.false"
-  secretTrue: "secretName.secretKey.true"
-  configMap: "configMapName.configMapKey"
+  valueWithDot: "value.with.dot"
+  secretFalse: "####secretName.secretKey.false####"
+  secretTrue: "####secretName.secretKey.true####"
+  configMap: "####configMapName.configMapKey####"
 `,
-			deployment,
-			`
+            deployment,
+            `
 ---
 
 apiVersion: apps/v1
@@ -265,7 +269,7 @@ metadata:
     app: helmx--test
     version: 0.0.0
   annotations:
-    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"securityContext\":{\"runAsUser\":1024,\"runAsGroup\":1000,\"runAsNonRoot\":true,\"readOnlyRootFilesystem\":true,\"privileged\":true},\"hostNetwork\":true,\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]},\"envs\":{\"configMap\":\"configMapName.configMapKey\",\"env\":\"test\",\"secretFalse\":\"secretName.secretKey.false\",\"secretTrue\":\"secretName.secretKey.true\"}}"
+    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"securityContext\":{\"runAsUser\":1024,\"runAsGroup\":1000,\"runAsNonRoot\":true,\"readOnlyRootFilesystem\":true,\"privileged\":true},\"hostNetwork\":true,\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]},\"envs\":{\"configMap\":\"####configMapName.configMapKey####\",\"env\":\"test\",\"secretFalse\":\"####secretName.secretKey.false####\",\"secretTrue\":\"####secretName.secretKey.true####\",\"valueWithDot\":\"value.with.dot\"}}"
 spec:
   selector:
     matchLabels:
@@ -307,6 +311,8 @@ spec:
               key: secretKey
               name: secretName
               optional: true
+        - name: valueWithDot
+          value: value.with.dot
       imagePullSecrets:
       - name: qcloud-registry
       hostNetwork: true
@@ -320,11 +326,11 @@ spec:
         - test3.com
         - test4.com
 `,
-		)
-	})
+        )
+    })
 
-	t.Run("job", func(t *testing.T) {
-		check(t, baseProject+`
+    t.Run("job", func(t *testing.T) {
+        check(t, baseProject+`
 jobs:
   doonce:
     image: busybox
@@ -336,8 +342,8 @@ jobs:
     cron:
       schedule: "*/1 * * * *"
 `,
-			job,
-			`
+            job,
+            `
 ---
 
 apiVersion: batch/v1
@@ -355,11 +361,11 @@ spec:
       - name: qcloud-registry
       restartPolicy: Never
 `,
-		)
-	})
+        )
+    })
 
-	t.Run("cronJob", func(t *testing.T) {
-		check(t, baseProject+`
+    t.Run("cronJob", func(t *testing.T) {
+        check(t, baseProject+`
 jobs:
   doonce:
     image: busybox
@@ -371,8 +377,8 @@ jobs:
     cron:
       schedule: "*/1 * * * *"
 `,
-			cronJob,
-			`
+            cronJob,
+            `
 ---
 
 apiVersion: batch/v1beta1
@@ -392,12 +398,12 @@ spec:
           - name: qcloud-registry
           restartPolicy: Never
 `,
-		)
-	})
+        )
+    })
 }
 
 var (
-	service = `
+    service = `
 {{ if ( and ( exists .Service ) ( gt ( len .Service.Ports ) 0 ) ) }}
 --- 
 
@@ -415,7 +421,7 @@ spec:
 {{ spaces 2 | toYamlIndent ( toKubeServiceSpec . )  }}
 {{ end }}
 `
-	deployment = `
+    deployment = `
 {{ if ( exists .Service ) }}
 ---
 
@@ -435,7 +441,7 @@ spec:
 {{ spaces 2 | toYamlIndent ( toKubeDeploymentSpec . )  }}
 {{ end }}
 `
-	job = `
+    job = `
 {{ $spec := .}}
 {{ range $name, $job := .Jobs }}
 {{ if (not (exists $job.Cron)) }}
@@ -451,7 +457,7 @@ spec:
 {{ end }}
 `
 
-	cronJob = `
+    cronJob = `
 {{ $spec := .}}
 {{ range $name, $job := .Jobs }}
 {{ if (exists $job.Cron) }}
@@ -467,7 +473,7 @@ spec:
 {{ end }}
 `
 
-	ingress = `
+    ingress = `
 {{ if ( len .Service.Ingresses ) }}
 --- 
 
@@ -481,7 +487,7 @@ spec:
 {{ spaces 2 | toYamlIndent ( toKubeIngressSpec . )}}
 {{ end }}
 `
-	serviceAccount = `
+    serviceAccount = `
 {{ if ( len .Service.ServiceAccountRoleRules ) }}
 
 --- 
@@ -516,7 +522,7 @@ roleRef:
 {{ end }}
 `
 
-	pullSecret = `
+    pullSecret = `
 {{ if ( exists .Service.ImagePullSecret ) }}
 
 --- 
@@ -532,17 +538,17 @@ data:
 )
 
 func check(t *testing.T, helmx string, tmpl string, expect string) {
-	hx := NewHelmX()
-	err := hx.FromYAML([]byte(helmx))
-	gomega.NewWithT(t).Expect(err).To(gomega.BeNil())
+    hx := NewHelmX()
+    err := hx.FromYAML([]byte(helmx))
+    gomega.NewWithT(t).Expect(err).To(gomega.BeNil())
 
-	hx.AddTemplate("tmpl", tmpl)
+    hx.AddTemplate("tmpl", tmpl)
 
-	buf := &bytes.Buffer{}
-	err = hx.ExecuteAll(buf, &hx.Spec)
-	gomega.NewWithT(t).Expect(err).To(gomega.BeNil())
-	fmt.Println("----------helmx----------------")
-	fmt.Println(buf.String())
-	fmt.Println("-------------------------------")
-	gomega.NewWithT(t).Expect(strings.TrimSpace(buf.String())).To(gomega.Equal(strings.TrimSpace(expect)))
+    buf := &bytes.Buffer{}
+    err = hx.ExecuteAll(buf, &hx.Spec)
+    gomega.NewWithT(t).Expect(err).To(gomega.BeNil())
+    fmt.Println("----------helmx----------------")
+    fmt.Println(buf.String())
+    fmt.Println("-------------------------------")
+    gomega.NewWithT(t).Expect(strings.TrimSpace(buf.String())).To(gomega.Equal(strings.TrimSpace(expect)))
 }
