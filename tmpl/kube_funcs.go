@@ -157,7 +157,7 @@ func ToKubeIngressSpec(s spec.Spec) kubetypes.KubeIngressSpec {
 	return is
 }
 
-func ToKubeEnv(envs spec.Envs) kubetypes.KubeEnv {
+func ToKubeEnv(envs spec.EnvsWithValueFrom) kubetypes.KubeEnv {
 	keys := make([]string, 0)
 
 	for k := range envs {
@@ -169,10 +169,29 @@ func ToKubeEnv(envs spec.Envs) kubetypes.KubeEnv {
 	e := kubetypes.KubeEnv{}
 
 	for _, k := range keys {
-		e.Env = append(e.Env, kubetypes.KubeEnvVar{
-			Name:  k,
-			Value: envs[k],
-		})
+		kubeEnvVar := kubetypes.KubeEnvVar{
+			Name: k,
+		}
+
+		if envs[k].Value != "" {
+			kubeEnvVar.Value = envs[k].Value
+		} else {
+			kubeEnvVar.ValueFrom = make(map[string]map[string]interface{})
+			if envs[k].ValueFromSecret != nil {
+				kubeEnvVar.ValueFrom["secretKeyRef"] = map[string]interface{}{
+					"name":     envs[k].ValueFromSecret.SecretName,
+					"key":      envs[k].ValueFromSecret.Key,
+					"optional": envs[k].ValueFromSecret.Optional,
+				}
+			} else {
+				kubeEnvVar.ValueFrom["configMapKeyRef"] = map[string]interface{}{
+					"name": envs[k].ValueFromConfigMap.ConfigMapName,
+					"key":  envs[k].ValueFromConfigMap.Key,
+				}
+			}
+		}
+
+		e.Env = append(e.Env, kubeEnvVar)
 	}
 
 	return e
@@ -291,7 +310,8 @@ func ToKubeContainer(s spec.Spec, c spec.Container) kubetypes.KubeContainer {
 		if c.Envs == nil {
 			c.Envs = spec.Envs{}
 		}
-		ss.KubeEnv = ToKubeEnv(c.Envs.Merge(s.Envs))
+		envsWithValueFrom, _ := spec.ParseEnvsWithValueFrom(c.Envs.Merge(s.Envs))
+		ss.KubeEnv = ToKubeEnv(envsWithValueFrom)
 	}
 
 	ss.KubeVolumeMounts = toKubeVolumeMounts(c)

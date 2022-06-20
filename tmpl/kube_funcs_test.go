@@ -82,3 +82,33 @@ func LogJSON(v interface{}) {
 	data, _ := json.MarshalIndent(v, "", "  ")
 	fmt.Println(string(data))
 }
+
+func TestToKubeEnv(t *testing.T) {
+	t.Run("value", func(t *testing.T) {
+		envs := make(spec.EnvsWithValueFrom)
+		envs["key"] = &spec.EnvValue{Value: "value"}
+		kubeEnvs := tmpl.ToKubeEnv(envs)
+		spew.Dump(kubeEnvs)
+	})
+
+	t.Run("configmap", func(t *testing.T) {
+		envs := make(spec.EnvsWithValueFrom)
+		envs["key"] = &spec.EnvValue{ValueFromConfigMap: &spec.EnvValueFromConfigMap{
+			ConfigMapName: "configMapName",
+			Key:           "configMapKey",
+		}}
+		kubeEnvs := tmpl.ToKubeEnv(envs)
+		spew.Dump(kubeEnvs)
+	})
+
+	t.Run("secret", func(t *testing.T) {
+		envs := make(spec.EnvsWithValueFrom)
+		envs["key"] = &spec.EnvValue{ValueFromSecret: &spec.EnvValueFromSecret{
+			SecretName: "secretName",
+			Key:        "secretKey",
+			Optional:   false,
+		}}
+		kubeEnvs := tmpl.ToKubeEnv(envs)
+		spew.Dump(kubeEnvs)
+	})
+}

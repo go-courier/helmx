@@ -2,6 +2,7 @@ package helmx
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -97,7 +98,9 @@ jobs:
 
 envs:
   env: "test"
-
+  secretFalse: "secretName.secretKey.false"
+  secretTrue: "secretName.secretKey.true"
+  configMap: "configMapName.configMapKey"
 resources:
   cpu: 10/20m
   memory: 0/20Mi
@@ -244,7 +247,11 @@ service:
     runAsNonRoot: true
     readOnlyRootFilesystem: true
     privileged: true
-
+envs:
+  env: "test"
+  secretFalse: "secretName.secretKey.false"
+  secretTrue: "secretName.secretKey.true"
+  configMap: "configMapName.configMapKey"
 `,
 			deployment,
 			`
@@ -258,7 +265,7 @@ metadata:
     app: helmx--test
     version: 0.0.0
   annotations:
-    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"securityContext\":{\"Capabilities\":null,\"RunAsUser\":1024,\"RunAsGroup\":1000,\"RunAsNonRoot\":true,\"ReadOnlyRootFilesystem\":true,\"AllowPrivilegeEscalation\":null,\"ProcMount\":null,\"Privileged\":true,\"SELinuxOptions\":null},\"hostNetwork\":true,\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]}}"
+    helmx: "{\"project\":{\"name\":\"helmx\",\"feature\":\"test\",\"version\":\"0.0.0\",\"group\":\"helmx\",\"description\":\"helmx\"},\"service\":{\"securityContext\":{\"runAsUser\":1024,\"runAsGroup\":1000,\"runAsNonRoot\":true,\"readOnlyRootFilesystem\":true,\"privileged\":true},\"hostNetwork\":true,\"hosts\":[\"127.0.0.1:test1.com,test2.com\",\"127.0.0.2:test3.com,test4.com\"],\"ports\":[\"80\"]},\"envs\":{\"configMap\":\"configMapName.configMapKey\",\"env\":\"test\",\"secretFalse\":\"secretName.secretKey.false\",\"secretTrue\":\"secretName.secretKey.true\"}}"
 spec:
   selector:
     matchLabels:
@@ -280,6 +287,26 @@ spec:
         ports:
         - containerPort: 80
           protocol: TCP
+        env:
+        - name: configMap
+          valueFrom:
+            configMapKeyRef:
+              key: configMapKey
+              name: configMapName
+        - name: env
+          value: test
+        - name: secretFalse
+          valueFrom:
+            secretKeyRef:
+              key: secretKey
+              name: secretName
+              optional: false
+        - name: secretTrue
+          valueFrom:
+            secretKeyRef:
+              key: secretKey
+              name: secretName
+              optional: true
       imagePullSecrets:
       - name: qcloud-registry
       hostNetwork: true
@@ -514,5 +541,8 @@ func check(t *testing.T, helmx string, tmpl string, expect string) {
 	buf := &bytes.Buffer{}
 	err = hx.ExecuteAll(buf, &hx.Spec)
 	gomega.NewWithT(t).Expect(err).To(gomega.BeNil())
+	fmt.Println("----------helmx----------------")
+	fmt.Println(buf.String())
+	fmt.Println("-------------------------------")
 	gomega.NewWithT(t).Expect(strings.TrimSpace(buf.String())).To(gomega.Equal(strings.TrimSpace(expect)))
 }

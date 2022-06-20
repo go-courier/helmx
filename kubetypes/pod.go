@@ -72,8 +72,9 @@ type KubeEnv struct {
 }
 
 type KubeEnvVar struct {
-	Name  string `yaml:"name"`
-	Value string `yaml:"value"`
+	Name      string                            `yaml:"name"`
+	Value     string                            `yaml:"value,omitempty"`
+	ValueFrom map[string]map[string]interface{} `yaml:"valueFrom,omitempty"`
 }
 
 type KubeContainerPorts struct {
