@@ -12,8 +12,9 @@ const (
 )
 
 type KubeServiceSpec struct {
-	Type  ServiceType       `yaml:"type,omitempty"`
-	Ports []KubeServicePort `yaml:"ports,omitempty"`
+	ClusterIP *string           `yaml:"clusterIP,omitempty"`
+	Type      ServiceType       `yaml:"type,omitempty"`
+	Ports     []KubeServicePort `yaml:"ports,omitempty"`
 }
 
 type KubeServicePort struct {
@@ -22,4 +23,7 @@ type KubeServicePort struct {
 	Port       uint16             `yaml:"port"`
 	TargetPort uint16             `yaml:"targetPort"`
 	Protocol   constants.Protocol `yaml:"protocol"`
+}
+
+type KubeServiceHeadless struct {
 }

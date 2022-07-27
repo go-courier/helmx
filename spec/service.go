@@ -15,6 +15,8 @@ type Service struct {
 
 	Ports     []Port        `json:"ports,omitempty" yaml:"ports,omitempty"`
 	Ingresses []IngressRule `json:"ingresses,omitempty" yaml:"ingresses,omitempty"`
+
+	Headless bool `json:"headless,omitempty" yaml:"headless,omitempty"`
 }
 
 type Pod struct {
