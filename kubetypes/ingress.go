@@ -1,31 +1,37 @@
 package kubetypes
 
 type KubeIngressSpec struct {
-	Rules []IngressRule `yaml:"rules"`
+    Rules []IngressRule `yaml:"rules"`
+    TLS   []IngressTLS  `yaml:"tls,omitempty"`
 }
 
 type KubeRoleRule struct {
-	ApiGroups     []string `yaml:"apiGroups"`
-	Resources     []string `yaml:"resources"`
-	ResourceNames []string `yaml:"resourceNames,omitempty"`
-	Verbs         []string `yaml:"verbs"`
+    ApiGroups     []string `yaml:"apiGroups"`
+    Resources     []string `yaml:"resources"`
+    ResourceNames []string `yaml:"resourceNames,omitempty"`
+    Verbs         []string `yaml:"verbs"`
 }
 
 type IngressRule struct {
-	Host string                `yaml:"host,omitempty"`
-	HTTP *HTTPIngressRuleValue `yaml:"http,omitempty"`
+    Host string                `yaml:"host,omitempty"`
+    HTTP *HTTPIngressRuleValue `yaml:"http,omitempty"`
 }
 
 type HTTPIngressRuleValue struct {
-	Paths []HTTPIngressPath `yaml:"paths"`
+    Paths []HTTPIngressPath `yaml:"paths"`
 }
 
 type HTTPIngressPath struct {
-	Path    string         `yaml:"path,omitempty"`
-	Backend IngressBackend `yaml:"backend"`
+    Path    string         `yaml:"path,omitempty"`
+    Backend IngressBackend `yaml:"backend"`
 }
 
 type IngressBackend struct {
-	ServiceName string `yaml:"serviceName"`
-	ServicePort uint16 `yaml:"servicePort"`
+    ServiceName string `yaml:"serviceName"`
+    ServicePort uint16 `yaml:"servicePort"`
+}
+
+type IngressTLS struct {
+    Hosts      []string `yaml:"hosts,omitempty"`
+    SecretName string   `yaml:"secretName"`
 }
