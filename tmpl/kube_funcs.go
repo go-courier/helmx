@@ -195,9 +195,11 @@ func ToKubeEnv(envs spec.EnvsWithValueFrom) kubetypes.KubeEnv {
                     "optional": envs[k].ValueFromSecret.Optional,
                 }
             } else {
-                kubeEnvVar.ValueFrom["configMapKeyRef"] = map[string]interface{}{
-                    "name": envs[k].ValueFromConfigMap.ConfigMapName,
-                    "key":  envs[k].ValueFromConfigMap.Key,
+                if envs[k].ValueFromConfigMap != nil {
+                    kubeEnvVar.ValueFrom["configMapKeyRef"] = map[string]interface{}{
+                        "name": envs[k].ValueFromConfigMap.ConfigMapName,
+                        "key":  envs[k].ValueFromConfigMap.Key,
+                    }
                 }
             }
         }
